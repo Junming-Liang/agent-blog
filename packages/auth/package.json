@@ -1,0 +1,9 @@
+{
+  "name": "@agent-blog/auth",
+  "version": "0.2.1",
+  "license": "MIT",
+  "type": "module",
+  "exports": "./index.mjs",
+  "files": ["index.mjs", "plugin.json", "public", "README.md"],
+  "peerDependencies": {"@agent-blog/core": "^0.2.1"}
+}

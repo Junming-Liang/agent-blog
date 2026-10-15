@@ -63,7 +63,7 @@ export default {
 | `api.commandMiddleware(fn)` / `api.execute(name, input)` | 包装命令执行或调用已注册插件命令 |
 | `api.on(event, fn)` | 监听文章写入、删除、构建、命令完成 |
 | `api.command(definition)` | 注册可被 CLI 和 agent 发现的命令 |
-| `api.route(prefix, handler)` | 为本地预览服务注册路由前缀 |
+| `api.route(prefix, handler, {public?})` | 注册路由；认证提供者依据公开标记保护私有端点 |
 | `api.output(relativePath, render)` | 注册静态文件或独立页面，同时支持预览和构建 |
 | `api.asset(prefix, directory, options)` | 注册 `/_assets/name` 下的资源 |
 | `api.stylesheet(url)` | 将本地资源样式加入页面 |
@@ -90,6 +90,8 @@ export default {
 ## HTTP 路由
 
 `api.route('/my-feature', handler)` 接收 `{req,res,url,pathname,blog,json,html,readJSON}`。路由匹配前缀及其子路径，处理器负责结束响应；注册顺序决定匹配优先级。可使用 `json(res, status, value)` 或 `html(res, value)`，也可使用 Node 的请求和响应对象。
+
+core 0.2.1 起，路由元数据默认 `public: false`。启用 `@agent-blog/auth` 时，私有路由和私有资源要求登录；需要匿名访问的端点显式使用 `api.route('/public-api', handler, {public: true})`。认证由插件执行；仅运行核心的本地工作区仍由回环 Host/Origin 边界保护。
 
 `readJSON(req)` 接受 `application/json`，限制请求为 2 MiB。输入仍需校验。整个服务器只监听回环地址，并在路由执行前检查 Host 和 Origin；插件路由不会进入静态构建结果。
 

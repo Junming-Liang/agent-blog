@@ -5,7 +5,7 @@ import os from 'node:os';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
-import {loadSite, serve} from '../packages/core/index.mjs';
+import {loadSite, readSiteConfig, serve} from '../packages/core/index.mjs';
 
 const require = createRequire(import.meta.url);
 const {chromium} = require(process.env.AGENT_BLOG_PLAYWRIGHT_MODULE || 'playwright');
@@ -29,7 +29,9 @@ blog.posts.write('first', {metadata: {title: 'Browser Article', date: '2026-10-1
 blog.posts.write('second', {metadata: {title: 'Second Article', date: '2026-10-13', draft: true}, body: 'Second unique body'}, null);
 const server = await serve(blog, {port: 0});
 const origin = 'http://127.0.0.1:' + server.address().port;
-const demoBlog = await loadSite(path.join(root, 'examples/demo'));
+const demoConfig = readSiteConfig(path.join(root, 'examples/demo')).config;
+// This editor fixture tests the optional local workspace without a login provider.
+const demoBlog = await loadSite(path.join(root, 'examples/demo'), {config: {...demoConfig, plugins: demoConfig.plugins.filter(entry => entry !== '@agent-blog/auth')}});
 const demoServer = await serve(demoBlog, {port: 0});
 const demo = 'http://127.0.0.1:' + demoServer.address().port;
 const terminalBlog = await loadSite(demoBlog.site.root, {config: {...demoBlog.site, plugins: demoBlog.site.plugins.map(entry => entry === '@agent-blog/theme-paper' ? '@agent-blog/theme-terminal' : entry)}});

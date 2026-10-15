@@ -1,5 +1,26 @@
 # 独立服务器部署与 WordPress 迁移
 
+## 独立登录与公开部署
+
+默认使用 `@agent-blog/auth`，日常运行仅需 Node.js 和静态托管/反向代理，不需要 WordPress、PHP 或数据库。迁移工具只用于一次性内容导入，完成后可停用。博客通过自己的账号登录编辑器。
+
+在站点配置中为 auth 设置规范 HTTPS origin，并将 `__auth`、`__editor` 与未命中公开构建的私有 `/_assets/` 转发至固定回环上游。对应 location 可复用如下片段：
+
+```nginx
+proxy_pass http://127.0.0.1:4174;
+proxy_set_header Host 127.0.0.1:4174;
+proxy_set_header Origin http://127.0.0.1:4174;
+proxy_set_header X-Agent-Blog-Origin $http_origin;
+proxy_set_header X-Agent-Blog-Client $remote_addr;
+proxy_http_version 1.1;
+proxy_redirect off;
+proxy_read_timeout 35s;
+```
+
+这两个自定义头必须由代理覆盖，不能透传外部同名头。原始 Origin 在 auth 插件中与配置的 HTTPS origin 精确比较；回环 Host/Origin 继续通过核心的本地服务边界。Cookie 和 Set-Cookie 应正常转发，不缓存登录及编辑响应。公开静态文件直接读取 `dist`。
+
+以站点文件所有者身份运行 `auth-setup --site /path/to/site --json`，将一次性链接交给站点所有者，在网页中设置用户名和密码。账号状态仅位于私有 `.auth/`，不进入静态构建和 Git。详细的首次设置、会话失效和恢复流程见[登录插件文档](../packages/auth/README.md)。
+
 核心服务器始终只监听回环地址。公开阅读使用 `build` 生成的静态 `dist/`，编辑入口由部署层认证后转发；不要将整个编辑服务器直接代理到公网。
 
 ## 迁移文章
@@ -28,9 +49,9 @@ node packages/core/cli.mjs build --site /path/to/site --json
 
 媒体需单独复制并校验文件指纹。保留原 `/wp-content/uploads/` URL 能减少正文链接变化。旧 `/?p=ID`、`/?page_id=ID` 可由服务器重定向到 `/posts/wp-ID/`；仅为公开内容生成重定向。
 
-## 沿用 WordPress 登录
+## 旧部署兼容：沿用 WordPress 登录（非默认）
 
-`wordpress-gateway.php` 是可选部署适配器，需要 PHP-FPM、curl 扩展和保留的 WordPress 安装。它只代理 `/__editor/` 与 `/_assets/editor/`，要求原站管理员登录，校验写请求的 Origin，并转发到固定回环地址。适配器不接收上游地址参数，也不向编辑服务器转发 WordPress 登录凭证。
+`wordpress-gateway.php` 仅保留用于兼容旧部署；使用它就仍然依赖原 WordPress 登录，不属于独立部署方案。新部署应使用上面的 auth 插件和直接反向代理。旧适配器需要 PHP-FPM、curl 扩展和保留的 WordPress 安装，代理编辑与私有资源请求，要求原站管理员登录并校验写请求的 Origin。
 
 在 HTTPS 虚拟主机中，为这两个前缀配置 FastCGI 并传入：
 
