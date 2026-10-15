@@ -109,6 +109,8 @@ if (warnings.length) console.error(warnings);
 
 CLI 成功输出 `{ok:true,data}`，失败输出 `{ok:false,error:{code,message}}` 并返回非零退出码。插件通知失败会单独报告 warnings，已经提交的文章仍然保存成功。
 
+从 WordPress 迁移时，可启用独立的 `@agent-blog/wordpress` 插件，将旧文章、页面和说说转换为 Markdown，并保留公开状态、来源 ID 与内容指纹。[迁移和服务器部署说明](deploy/README.md) 包含只读导出、媒体迁移、旧链接兼容、沿用原站登录及保存后构建的部署适配器。
+
 | 操作 | 命令 |
 | --- | --- |
 | 发现全部能力 | `schema` |
@@ -260,6 +262,7 @@ flowchart LR
 | --- | --- |
 | [packages/core](packages/core) | 零运行时依赖核心、CLI 和公开类型 |
 | [packages/markdown](packages/markdown)、[highlight](packages/highlight)、[math](packages/math) | 可选内容渲染插件 |
+| [packages/wordpress](packages/wordpress)、[deploy](deploy) | 可选迁移插件与服务器部署适配器 |
 | [packages/editor](packages/editor) | 网页编辑器及其扩展协议 |
 | [packages/theme-paper](packages/theme-paper)、[theme-terminal](packages/theme-terminal) | 可替换皮肤 |
 | [examples/demo](examples/demo) | 示例站点、文章和使用者插件 |

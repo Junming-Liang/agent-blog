@@ -3,6 +3,7 @@ dist/
 .build-*/
 *.tmp
 .write-lock/
+.publish-lock/
 test-results/
 packages/editor/public/editor.js
 AGENTS.local.md

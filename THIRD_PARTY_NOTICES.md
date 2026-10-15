@@ -10,6 +10,7 @@ Agent Blog 的源码使用 MIT 许可证。以下是直接依赖在各自 packag
 | highlight.js | 代码高亮 | BSD-3-Clause | [highlight.js](https://github.com/highlightjs/highlight.js) |
 | KaTeX | 数学公式、样式与字体资产 | MIT | [KaTeX](https://github.com/KaTeX/KaTeX) |
 | CodeMirror state / view / commands / language / lang-markdown / lang-javascript / lang-python | 网页编辑器与语法支持 | MIT | [CodeMirror](https://codemirror.net/)、[源码](https://github.com/codemirror) |
+| Turndown / turndown-plugin-gfm | 可选 WordPress 迁移：HTML 转 Markdown、表格与代码块 | MIT | [Turndown](https://github.com/mixmark-io/turndown)、[GFM 插件](https://github.com/mixmark-io/turndown-plugin-gfm) |
 
 开发工具依赖：
 
