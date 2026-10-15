@@ -85,12 +85,12 @@ export async function loadSite(directory, {config: override} = {}) {
       if (definition.stdin && !['text', 'json'].includes(definition.stdin)) fail('INVALID_COMMAND', 'stdin must be text or json.');
       commands.set(name, {...definition});
     },
-    route(prefix, handler) {
-      if (typeof handler !== 'function') fail('INVALID_ROUTE', 'route needs a handler function.');
+    route(prefix, handler, {public: published = false} = {}) {
+      if (typeof handler !== 'function' || typeof published !== 'boolean') fail('INVALID_ROUTE', 'route needs a handler function and boolean public option.');
       const normalized = prefix.replace(/\/$/, '');
       if (!/^\/[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*\/?$/.test(prefix) || prefix.startsWith('/_assets') || routes.some(route => route.prefix === normalized || route.prefix.startsWith(normalized + '/') || normalized.startsWith(route.prefix + '/'))) fail('INVALID_ROUTE', `Overlapping or invalid route: ${prefix}`);
       if ([...outputs.keys()].some(name => ('/' + name).startsWith(normalized + '/') || '/' + name === normalized)) fail('OUTPUT_COLLISION', `Route overlaps a static output: ${prefix}`);
-      routes.push({prefix: normalized, handler});
+      routes.push({prefix: normalized, handler, public: published});
     },
     output(relative, render) {
       if (typeof relative !== 'string' || !relative || relative.split('/').some(part => !part || part.startsWith('.') || part.includes('\\')) || path.isAbsolute(relative) || ['index.html', 'posts', '_assets'].includes(relative) || relative.startsWith('posts/') || relative.startsWith('_assets/') || [...outputs.keys()].some(name => name === relative || name.startsWith(relative + '/') || relative.startsWith(name + '/'))) fail('INVALID_OUTPUT', 'Use a unique relative output path outside the core page and asset paths.');

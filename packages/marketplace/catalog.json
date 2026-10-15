@@ -37,6 +37,41 @@
     },
     {
       "schemaVersion": 1,
+      "id": "auth",
+      "name": "独立登录",
+      "summary": "独立账号、一次性初始化、会话与私有路由保护，不依赖 WordPress、PHP 或数据库。",
+      "category": "integration",
+      "apiVersion": 1,
+      "license": "MIT",
+      "authors": [
+        {
+          "name": "Agent Blog contributors",
+          "url": "https://github.com/Junming-Liang/agent-blog"
+        }
+      ],
+      "requires": [],
+      "optionalRequires": [
+        "editor"
+      ],
+      "extends": [],
+      "dependencies": {},
+      "peerDependencies": {
+        "@agent-blog/core": "^0.2.1"
+      },
+      "source": {
+        "type": "builtin",
+        "path": "packages/auth",
+        "package": "@agent-blog/auth"
+      },
+      "version": "0.2.1",
+      "dependents": {
+        "requiredBy": [],
+        "optionalFor": [],
+        "extendedBy": []
+      }
+    },
+    {
+      "schemaVersion": 1,
       "id": "date-format",
       "name": "日期格式",
       "summary": "通过独立的日期展示组件配置时区和显示格式。",
@@ -223,6 +258,7 @@
           "editor-markdown"
         ],
         "optionalFor": [
+          "auth",
           "highlight",
           "markdown",
           "math",

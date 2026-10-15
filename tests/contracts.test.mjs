@@ -142,10 +142,11 @@ test('default initialization provides the bundled system with removable plugins 
   const root = path.join(parent, 'site');
   const initialized = await main(['init', root]);
   assert.equal(initialized.preset, 'default');
+  assert.ok(!initialized.plugins.includes('@agent-blog/wordpress'));
   const blog = await loadSite(root);
-  assert.deepEqual(blog.plugins.map(p => p.name), ['editor', 'markdown', 'highlight', 'math', 'editor-markdown', 'editor-highlight', 'editor-agent', 'wordpress', 'theme-paper', 'notes', 'pages', 'navigation', 'archive', 'links', 'date-format', 'footer', 'publish-on-save', 'marketplace']);
+  assert.deepEqual(blog.plugins.map(p => p.name), ['editor', 'markdown', 'highlight', 'math', 'editor-markdown', 'editor-highlight', 'editor-agent', 'auth', 'theme-paper', 'notes', 'pages', 'navigation', 'archive', 'links', 'date-format', 'footer', 'publish-on-save', 'marketplace']);
   const schema = await main(['schema', '--site', root]);
-  for (const name of ['notes-new', 'pages-new', 'marketplace-list', 'wordpress-import']) assert.ok(schema.commands.some(command => command.name === name));
+  for (const name of ['notes-new', 'pages-new', 'marketplace-list', 'auth-setup']) assert.ok(schema.commands.some(command => command.name === name));
   assert.equal(schema.commands.find(command => command.name === 'init').flags.preset.default, 'default');
   const note = await main(['notes-new', 'short-note', '--title', 'Default note', '--site', root]);
   assert.equal(note.metadata.type, 'note');

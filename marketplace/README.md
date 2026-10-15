@@ -9,11 +9,12 @@
 | 插件 / 源码 | 名称与用途 | 分类 | 依赖与继承 | 直接影响范围 | 许可证 | 作者 |
 | --- | --- | --- | --- | --- | --- | --- |
 | [archive](../packages/archive) / [清单](../packages/archive/plugin.json) | 文章归档：生成文章归档页，支持配置兼容旧链接的页面。 | content | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
+| [auth](../packages/auth) / [清单](../packages/auth/plugin.json) | 独立登录：独立账号、一次性初始化、会话与私有路由保护，不依赖 WordPress、PHP 或数据库。 | integration | 可选：editor | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [date-format](../packages/date-format) / [清单](../packages/date-format/plugin.json) | 日期格式：通过独立的日期展示组件配置时区和显示格式。 | rendering | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [editor-agent](../packages/editor-agent) / [清单](../packages/editor-agent/plugin.json) | Agent 交接：为编辑器添加复制给 Agent 的内容交接操作。 | editor | 必需：editor | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [editor-highlight](../packages/editor-highlight) / [清单](../packages/editor-highlight/plugin.json) | 编辑器语法高亮：为网页编辑器添加语法着色，可独立启用或禁用。 | editor | 必需：editor | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [editor-markdown](../packages/editor-markdown) / [清单](../packages/editor-markdown/plugin.json) | 编辑器 Markdown 语言：为网页编辑器添加 Markdown 语言支持及代码围栏语言识别。 | editor | 必需：editor | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
-| [editor](../packages/editor) / [清单](../packages/editor/plugin.json) | 网页编辑器：在浏览器中编辑与 CLI 共用的文章，提供编辑器扩展接口。 | editor | 无 | 必需依赖者：editor-agent, editor-highlight, editor-markdown<br>可选联动者：highlight, markdown, math, notes, pages | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
+| [editor](../packages/editor) / [清单](../packages/editor/plugin.json) | 网页编辑器：在浏览器中编辑与 CLI 共用的文章，提供编辑器扩展接口。 | editor | 无 | 必需依赖者：editor-agent, editor-highlight, editor-markdown<br>可选联动者：auth, highlight, markdown, math, notes, pages | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [footer](../packages/footer) / [清单](../packages/footer/plugin.json) | 页脚：通过插件选项配置页脚文字及链接。 | content | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [highlight](../packages/highlight) / [清单](../packages/highlight/plugin.json) | 代码高亮：渲染代码围栏的语法高亮；可选提供编辑器代码块按钮。 | rendering | 必需：markdown<br>可选：editor | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [links](../packages/links) / [清单](../packages/links/plugin.json) | 友情链接：生成友情链接页面，链接内容通过插件选项配置。 | content | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
@@ -36,6 +37,8 @@
 ```mermaid
 flowchart LR
   p_archive["archive"]
+  p_auth["auth"]
+  p_auth -. 可选 .-> p_editor
   p_date_format["date-format"]
   p_editor_agent["editor-agent"]
   p_editor_agent -- 必需 --> p_editor

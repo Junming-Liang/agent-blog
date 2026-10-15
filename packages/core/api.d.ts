@@ -98,7 +98,7 @@ export interface PluginAPI {
   on<K extends keyof LifecycleEvents>(event: K, handler: (value: LifecycleEvents[K]) => void | Promise<void>): void;
   execute(name: string, invocation?: Invocation): Promise<unknown>;
   command(command: Command): void;
-  route(prefix: string, handler: (context: RouteContext) => void | Promise<void>): void;
+  route(prefix: string, handler: (context: RouteContext) => void | Promise<void>, options?: {public?: boolean}): void;
   output(relativePath: string, render: string | ((context: OutputContext) => string | Promise<string>)): void;
   asset(prefix: string, directory: string, options?: {public?: boolean; include?: string[]}): void;
   stylesheet(url: string): void;
@@ -122,7 +122,7 @@ export interface Blog {
   posts: ContentStore;
   plugins: LoadedPlugin[];
   commands: Map<string, Command>;
-  routes: {prefix: string; handler: (context: RouteContext) => void | Promise<void>}[];
+  routes: {prefix: string; handler: (context: RouteContext) => void | Promise<void>; public: boolean}[];
   outputs: Map<string, (context: OutputContext) => string | Promise<string>>;
   middleware: ((context: RouteContext, next: () => Promise<void>) => void | Promise<void>)[];
   builder?: (context: {blog: Blog; build(): Promise<BuildResult>}) => BuildResult | Promise<BuildResult>;
