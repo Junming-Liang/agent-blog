@@ -43,6 +43,8 @@ node packages/core/cli.mjs build --site /path/to/site --json
 
 如果 PHP 环境已设置 `open_basedir`，需在此网关的 FastCGI `PHP_ADMIN_VALUE` 中显式允许适配器目录、WordPress 目录及所需临时目录；保留原站其他请求的路径限制。首页替换为静态页面时，应将带 `rest_route` 参数的旧 WordPress 请求继续交给原 `index.php`，保留后台 API。
 
+使用 IP 或其他临时 HTTPS 地址时，可在该入口的网关参数中设置 `AGENT_BLOG_WORDPRESS_REBASE=1`，并将其 `/wp-login.php` 也交给此适配器。此时 `WP_HOME`、`WP_SITEURL` 只在当前请求中指向 `AGENT_BLOG_ORIGIN`，登录链接、Cookie 和登录后返回地址会留在该入口，数据库中的原域名不变。原 WordPress 配置不能预先固定这些常量或 Cookie 域。登录页所用的 WordPress 样式、脚本与图片也需要通过该入口提供。
+
 ## 保存后生成静态站
 
 把本目录的 `publish.mjs` 作为站点插件启用，即可在网页或 CLI 保存、删除文章后重新生成静态站。首次批量导入时先不要启用，以免每篇文章触发一次构建。进程间的 `.publish-lock/` 防止构建互相覆盖；保存已完成但构建失败时，CLI / 编辑 API 会返回生命周期告警。

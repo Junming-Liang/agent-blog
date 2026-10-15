@@ -12,15 +12,27 @@ header('X-Frame-Options: SAMEORIGIN');
 header("Content-Security-Policy: frame-ancestors 'self'");
 $uri = $_SERVER['REQUEST_URI'] ?? '';
 $path = parse_url($uri, PHP_URL_PATH);
-if (!is_string($path) || !preg_match('#^/(?:__editor(?:/|$)|_assets/editor/)#', $path)) respond_error(404, 'Not found.');
+$rebase = ($_SERVER['AGENT_BLOG_WORDPRESS_REBASE'] ?? '') === '1';
+$login = $rebase && $path === '/wp-login.php';
+if (!is_string($path) || (!preg_match('#^/(?:__editor(?:/|$)|_assets/editor/)#', $path) && !$login)) respond_error(404, 'Not found.');
 $origin = $_SERVER['AGENT_BLOG_ORIGIN'] ?? '';
 $upstream = $_SERVER['AGENT_BLOG_UPSTREAM'] ?? '';
 $root = $_SERVER['AGENT_BLOG_WORDPRESS_ROOT'] ?? '';
-if (!preg_match('#^https://[a-z0-9.-]+$#', $origin) || !preg_match('#^http://127\.0\.0\.1:[0-9]+$#', $upstream) || !is_file($root . '/wp-load.php')) respond_error(503, 'Editor gateway is not configured.');
+if (!preg_match('#^https://[a-z0-9.-]+(?::[0-9]+)?$#', $origin) || !preg_match('#^http://127\.0\.0\.1:[0-9]+$#', $upstream) || !is_file($root . '/wp-load.php')) respond_error(503, 'Editor gateway is not configured.');
 $method = $_SERVER['REQUEST_METHOD'];
 if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] !== $origin) respond_error(403, 'Origin rejected.');
 if (!in_array($method, ['GET', 'HEAD']) && ($_SERVER['HTTP_ORIGIN'] ?? '') !== $origin) respond_error(403, 'Same-origin requests are required.');
 define('DISABLE_WP_CRON', true);
+if ($rebase) {
+    // Request-local aliases keep login URLs and cookies on this origin without changing database options.
+    define('WP_HOME', $origin);
+    define('WP_SITEURL', $origin);
+}
+if ($login) {
+    if (!isset($_REQUEST['redirect_to'])) $_REQUEST['redirect_to'] = $origin . '/__editor/';
+    require $root . '/wp-login.php';
+    exit;
+}
 require_once $root . '/wp-load.php';
 if (!is_user_logged_in()) {
     if ($method === 'GET' && in_array($path, ['/__editor', '/__editor/'])) {
