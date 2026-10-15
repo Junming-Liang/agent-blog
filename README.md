@@ -74,12 +74,16 @@ npm run build
 以下命令同样在框架仓库根目录执行，使用已安装的 workspace CLI：
 
 ```sh
-npm exec -- agent-blog init ./my-blog --preset writer
+npm exec -- agent-blog init ./my-blog
 npm exec -- agent-blog new hello --title "我的第一篇文章" --site ./my-blog --json
 npm exec -- agent-blog serve --site ./my-blog --port 4174
 ```
 
-`writer` 预设启用 Markdown、高亮、公式、编辑器及独立的编辑器语言、着色、Agent 上下文插件。省略 `--preset writer` 会创建不启用插件的最小站点。新文章默认是草稿，可以在网页编辑器中编辑并发布。
+不带 `--preset` 时创建默认最小系统，直接启用当前的 18 个插件：Markdown、高亮、公式、编辑器、编辑器语言、编辑器着色、Agent 上下文、纸张皮肤、说说、页面、导航、归档、友情链接、日期格式、页脚、保存后构建、WordPress 迁移及插件广场。源码安装同时附带终端皮肤，供替换默认皮肤。
+
+这些功能都保留为独立插件，可以逐项停用、替换或扩展。新文章默认是草稿；保存或发布后会重新生成本地静态站点，部署到公网由使用者控制。
+
+需要自行组合时，`--preset minimal` 显式创建纯核心站点；`--preset writer` 保留仅启用七个写作与编辑插件的旧预设。新建站点不会改变已有站点的配置。
 
 ## Agent 工作流
 

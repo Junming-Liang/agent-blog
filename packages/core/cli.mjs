@@ -8,7 +8,7 @@ import {fail, slugCheck, withWriteLock, postInputSchema} from './content.mjs';
 const string = description => ({type: 'string', description});
 const boolean = description => ({type: 'boolean', description});
 const definitions = [
-  {name: 'init', arguments: ['directory'], flags: {preset: {...string('minimal or writer'), enum: ['minimal', 'writer']}}, description: 'Initialize an empty site directory.'},
+  {name: 'init', arguments: ['directory'], flags: {preset: {...string('default system, minimal core, or writer tools'), enum: ['default', 'minimal', 'writer'], default: 'default'}}, description: 'Initialize an empty site with the default plugin system.'},
   {name: 'list', description: 'List published posts and drafts.'},
   {name: 'get', arguments: ['slug'], description: 'Read a post and its current revision.'},
   {name: 'new', arguments: ['slug'], flags: {title: string('Post title')}, stdin: 'text', description: 'Create a draft; optional --stdin supplies its plain body.'},
@@ -57,14 +57,15 @@ function parse(rest, definition, globals) {
   return {args, flags};
 }
 async function stdin() { let value = ''; for await (const chunk of process.stdin) value += chunk; return value; }
-function init(directory, preset = 'minimal') {
+function init(directory, preset = 'default') {
   const root = path.resolve(directory);
   if (fs.existsSync(root) && fs.readdirSync(root).length) fail('EXISTS', 'Initialize an empty directory; existing files were left untouched.');
   fs.mkdirSync(path.join(root, 'content'), {recursive: true});
   fs.mkdirSync(path.join(root, 'plugins'));
-  const plugins = preset === 'writer' ? ['@agent-blog/markdown', '@agent-blog/highlight', '@agent-blog/math', '@agent-blog/editor', '@agent-blog/editor-markdown', '@agent-blog/editor-highlight', '@agent-blog/editor-agent'] : [];
+  const plugins = preset === 'minimal' ? [] : ['@agent-blog/markdown', '@agent-blog/highlight', '@agent-blog/math', '@agent-blog/editor', '@agent-blog/editor-markdown', '@agent-blog/editor-highlight', '@agent-blog/editor-agent'];
+  if (preset === 'default') plugins.push('@agent-blog/wordpress', '@agent-blog/theme-paper', '@agent-blog/notes', '@agent-blog/pages', '@agent-blog/navigation', '@agent-blog/archive', '@agent-blog/links', '@agent-blog/date-format', '@agent-blog/footer', '@agent-blog/publish', '@agent-blog/marketplace');
   fs.writeFileSync(path.join(root, 'blog.json'), JSON.stringify({version: 1, title: 'My Blog', description: 'Write in your own way.', plugins}, null, 2) + '\n');
-  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# Blog editing contract\n\nPosts in content/*.md are authoritative. Front matter is JSON between --- lines.\nDiscover commands and plugin flags with `agent-blog schema --json`.\nRead `get SLUG --json` before writing; use `put SLUG --stdin --if-revision REVISION --json`.\nThe input is {metadata,body}. Preserve custom metadata and merge revision conflicts.\nNew posts are drafts until explicitly published. Build does not deploy the site.\nUse `plugin scaffold NAME`, customize the resulting working plugin, then enable it.\nPlugins use API version 1 and declare dependencies with requires. They are trusted local code.\nPreview and editor remain loopback-only. Do not modify production routing or publish online without authorization.\n');
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# Blog editing contract\n\nPosts in content/*.md are authoritative. Front matter is JSON between --- lines.\nDiscover commands and plugin flags with `agent-blog schema --json`.\nRead `get SLUG --json` before writing; use `put SLUG --stdin --if-revision REVISION --json`.\nThe input is {metadata,body}. Preserve custom metadata and merge revision conflicts.\nNew posts are drafts until explicitly published. Build does not deploy the site.\nUse `plugin scaffold NAME`, customize the resulting working plugin, then enable it.\nEvery new feature must be an independent plugin. Plugins use API version 1 and declare requires, optionalRequires and extends. They are trusted local code.\nThe default preset enables the bundled system; inspect blog.json before changing it. The publish-on-save plugin rebuilds dist after content changes.\nPreview and editor remain loopback-only. Do not modify production routing or publish online without authorization.\n');
   return {root, preset, plugins};
 }
 async function configurePlugin(directory, action, name) {

@@ -11,6 +11,7 @@
     "@agent-blog/editor-markdown",
     "@agent-blog/editor-highlight",
     "@agent-blog/editor-agent",
+    "@agent-blog/wordpress",
     "./plugins/reading-time.mjs",
     "@agent-blog/theme-paper",
     "./plugins/writing-tools.mjs",
@@ -20,6 +21,8 @@
     "@agent-blog/archive",
     "@agent-blog/links",
     "@agent-blog/date-format",
+    "@agent-blog/footer",
+    "@agent-blog/publish",
     "@agent-blog/marketplace"
   ]
 }

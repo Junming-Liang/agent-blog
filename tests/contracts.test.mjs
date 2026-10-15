@@ -137,6 +137,38 @@ test('writer presets work outside the framework checkout without adding core dep
   await main(['init', root, '--preset', 'writer']);
   assert.deepEqual((await loadSite(root)).plugins.map(p => p.name), ['editor', 'markdown', 'highlight', 'math', 'editor-markdown', 'editor-highlight', 'editor-agent']);
 });
+test('default initialization provides the bundled system with removable plugins and preserves explicit core-only setup', async t => {
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-blog-default-')); t.after(() => fs.rmSync(parent, {recursive: true, force: true}));
+  const root = path.join(parent, 'site');
+  const initialized = await main(['init', root]);
+  assert.equal(initialized.preset, 'default');
+  const blog = await loadSite(root);
+  assert.deepEqual(blog.plugins.map(p => p.name), ['editor', 'markdown', 'highlight', 'math', 'editor-markdown', 'editor-highlight', 'editor-agent', 'wordpress', 'theme-paper', 'notes', 'pages', 'navigation', 'archive', 'links', 'date-format', 'footer', 'publish-on-save', 'marketplace']);
+  const schema = await main(['schema', '--site', root]);
+  for (const name of ['notes-new', 'pages-new', 'marketplace-list', 'wordpress-import']) assert.ok(schema.commands.some(command => command.name === name));
+  assert.equal(schema.commands.find(command => command.name === 'init').flags.preset.default, 'default');
+  const note = await main(['notes-new', 'short-note', '--title', 'Default note', '--site', root]);
+  assert.equal(note.metadata.type, 'note');
+  assert.equal(note.metadata.draft, true);
+  await main(['pages-new', 'about', '--title', 'About', '--site', root]);
+  await main(['publish', note.slug, '--if-revision', note.revision, '--site', root]);
+  assert.match(fs.readFileSync(path.join(root, 'dist/notes/index.html'), 'utf8'), /Default note/);
+  for (const output of ['archive/index.html', 'links/index.html']) assert.ok(fs.existsSync(path.join(root, 'dist', output)));
+  assert.ok(!fs.existsSync(path.join(root, 'dist/posts/about')));
+  assert.ok(!fs.existsSync(path.join(root, 'dist/_assets/editor')));
+  assert.match(await blog.page(), /_assets\/theme-paper\/style.css/);
+  await main(['plugin', 'disable', '@agent-blog/date-format', '--site', root]);
+  const customized = fs.readFileSync(path.join(root, 'blog.json'), 'utf8');
+  await assert.rejects(main(['init', root]), {code: 'EXISTS'});
+  assert.equal(fs.readFileSync(path.join(root, 'blog.json'), 'utf8'), customized);
+  const remaining = await loadSite(root);
+  assert.ok(!remaining.plugins.some(plugin => plugin.name === 'date-format'));
+  assert.ok(remaining.plugins.some(plugin => plugin.name === 'notes'));
+  assert.equal(remaining.posts.read(note.slug).metadata.title, 'Default note');
+  const minimal = path.join(parent, 'minimal');
+  assert.deepEqual((await main(['init', minimal, '--preset', 'minimal'])).plugins, []);
+  assert.deepEqual((await loadSite(minimal)).plugins, []);
+});
 test('installed CLI symlinks execute the same machine-readable command entry', async t => {
   const root = site(t), link = path.join(root, 'agent-blog');
   fs.symlinkSync(cli, link);
