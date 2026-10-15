@@ -72,9 +72,13 @@ export default {
       res.setHeader('Set-Cookie', cookie(token, lifetime / 1000));
     }
     function sameOrigin(req) {
+      proxyConfiguration(req);
       const expected = canonical?.origin || `http://${req.headers.host}`;
       const supplied = canonical ? req.headers['x-agent-blog-origin'] : req.headers.origin;
       if (supplied !== expected) api.fail('ORIGIN_REJECTED', 'Same-origin requests are required.', 403);
+    }
+    function proxyConfiguration(req) {
+      if (!canonical && (req.headers['x-agent-blog-client'] !== undefined || req.headers['x-agent-blog-origin'] !== undefined)) api.fail('AUTH_ORIGIN_CONFIG', 'Configure an HTTPS origin before proxying authentication.', 503);
     }
     function rate(req) {
       const now = Date.now(), key = canonical ? req.headers['x-agent-blog-client'] || req.socket.remoteAddress : req.socket.remoteAddress;
@@ -114,6 +118,7 @@ export default {
       return {url: `${canonical?.origin || ''}/__auth/setup#${token}`, expiresAt};
     })});
     api.route('/__auth', async ({req, res, pathname, blog, html, json}) => {
+      proxyConfiguration(req);
       res.setHeader('Referrer-Policy', 'no-referrer');
       res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
       const record = credentials(), key = session(req, record);
@@ -157,6 +162,7 @@ export default {
       const route = blog.routes.find(value => matches(pathname, value.prefix));
       const asset = blog.assets.find(value => pathname.startsWith(value.prefix + '/'));
       if (!(route && !route.public) && !(asset && !asset.public)) return next();
+      proxyConfiguration(req);
       const record = credentials();
       if (!session(req, record)) {
         if (req.method === 'GET' && route && (pathname === '/__editor/' || pathname === '/__editor' || req.headers.accept?.includes('text/html'))) return redirect(res, record ? '/__auth/login' : '/__auth/setup');

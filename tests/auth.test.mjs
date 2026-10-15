@@ -37,6 +37,8 @@ test('standalone auth protects private routes and assets while keeping public ou
   assert.equal((await fetch(base + '/private')).status, 401);
   assert.equal((await fetch(base + '/_assets/private/secret.txt')).status, 401);
   assert.equal((await fetch(base + '/_assets/auth/login.js')).status, 200);
+  const misconfigured = await fetch(base + '/__auth/setup', {headers: {'X-Agent-Blog-Client': 'proxy-client'}});
+  assert.equal(misconfigured.status, 503);
   const html = await (await fetch(base + '/__auth/setup')).text();
   assert.ok(!/wordpress|wp-login|php/i.test(html));
   assert.deepEqual(await blog.execute('auth-status'), {configured: false, setupPending: false});
