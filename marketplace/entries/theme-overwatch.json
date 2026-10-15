@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "theme-overwatch",
+  "name": "守望先锋 2 灵感主题",
+  "summary": "橙白配色、切角卡片与原创未来建筑场景；独立换肤，保留内容及功能插件。",
+  "category": "theme",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/theme-overwatch",
+    "package": "@agent-blog/theme-overwatch"
+  }
+}

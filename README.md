@@ -29,11 +29,15 @@ Agent Blog 是一个以 Agent 为主要开发者和操作者的轻量博客框�
 
 ## 界面预览
 
-两套皮肤使用同一批示例文章。皮肤改变页面布局与样式，文章源文件保持不变。
+皮肤使用同一批示例文章。皮肤改变页面布局与样式，文章源文件保持不变。
 
 | 纸张皮肤 | 暗色终端皮肤 |
 | --- | --- |
 | ![纸张皮肤](docs/assets/theme-paper.png) | ![暗色终端皮肤](docs/assets/theme-terminal.png) |
+
+[守望先锋 2 灵感皮肤](packages/theme-overwatch/README.md)采用橙白配色、深蓝灰 HUD、切角卡片与包内原创未来建筑场景。
+
+![守望先锋 2 灵感皮肤](docs/assets/theme-overwatch.png)
 
 <details>
 <summary>查看网页编辑器</summary>
@@ -79,7 +83,7 @@ npm exec -- agent-blog new hello --title "我的第一篇文章" --site ./my-blo
 npm exec -- agent-blog serve --site ./my-blog --port 4174
 ```
 
-不带 `--preset` 时创建默认最小系统，直接启用当前的 18 个插件：Markdown、高亮、公式、编辑器、编辑器语言、编辑器着色、Agent 上下文、纸张皮肤、说说、页面、导航、归档、友情链接、日期格式、页脚、保存后构建、WordPress 迁移及插件广场。源码安装同时附带终端皮肤，供替换默认皮肤。
+不带 `--preset` 时创建默认最小系统，直接启用当前的 18 个插件：Markdown、高亮、公式、编辑器、编辑器语言、编辑器着色、Agent 上下文、纸张皮肤、说说、页面、导航、归档、友情链接、日期格式、页脚、保存后构建、WordPress 迁移及插件广场。源码安装同时附带终端皮肤与守望先锋 2 灵感皮肤，供替换默认皮肤。
 
 这些功能都保留为独立插件，可以逐项停用、替换或扩展。新文章默认是草稿；保存或发布后会重新生成本地静态站点，部署到公网由使用者控制。
 
@@ -215,6 +219,8 @@ npm run build
 
 重启预览即可看到新皮肤。整体主题可以移除默认 CSS 并使用自己的布局和资源；组件插件可以只替换页头、文章卡片、元数据或页脚。
 
+使用守望先锋 2 灵感皮肤时，同样先停用当前皮肤，再启用 `@agent-blog/theme-overwatch`。它没有其他插件依赖，也不更改内容或启用新的功能。完整切换、回退及验证说明见[主题文档](packages/theme-overwatch/README.md)。
+
 [writing-tools 示例](examples/demo/plugins/writing-tools.mjs) 展示了更细的扩展：在现有编辑器中添加引用按钮、统计面板和文章系列字段，网页与 Agent CLI 共用 `writing-stats` 命令。
 
 ## 文章与配置
@@ -286,7 +292,7 @@ flowchart LR
 | [packages/markdown](packages/markdown)、[highlight](packages/highlight)、[math](packages/math) | 可选内容渲染插件 |
 | [packages/wordpress](packages/wordpress)、[deploy](deploy) | 可选迁移插件与服务器部署适配器 |
 | [packages/editor](packages/editor) | 网页编辑器及其扩展协议 |
-| [packages/theme-paper](packages/theme-paper)、[theme-terminal](packages/theme-terminal) | 可替换皮肤 |
+| [packages/theme-paper](packages/theme-paper)、[theme-terminal](packages/theme-terminal)、[theme-overwatch](packages/theme-overwatch) | 可替换皮肤 |
 | [examples/demo](examples/demo) | 示例站点、文章和使用者插件 |
 | [docs/plugin-api.md](docs/plugin-api.md) | 插件协议与开发说明 |
 | [tests](tests) | 内容、插件、编辑器和类型契约测试 |

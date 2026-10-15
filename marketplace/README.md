@@ -24,6 +24,7 @@
 | [notes](../packages/notes) / [清单](../packages/notes/plugin.json) | 说说：独立的短内容类型、列表与 CLI，可选添加网页编辑入口。 | content | 可选：editor | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [pages](../packages/pages) / [清单](../packages/pages/plugin.json) | 独立页面：管理关于页等独立内容，可选添加网页编辑入口。 | content | 可选：editor | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [publish-on-save](../packages/publish) / [清单](../packages/publish/plugin.json) | 保存后发布：在内容保存或删除后重新生成公开静态页面。 | publishing | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
+| [theme-overwatch](../packages/theme-overwatch) / [清单](../packages/theme-overwatch/plugin.json) | 守望先锋 2 灵感主题：橙白配色、切角卡片与原创未来建筑场景；独立换肤，保留内容及功能插件。 | theme | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [theme-paper](../packages/theme-paper) / [清单](../packages/theme-paper/plugin.json) | 纸张主题：以纸张风格展示博客，可以独立替换或禁用。 | theme | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [theme-terminal](../packages/theme-terminal) / [清单](../packages/theme-terminal/plugin.json) | 终端主题：以终端风格展示博客，可以独立替换或禁用。 | theme | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
 | [wordpress](../packages/wordpress) / [清单](../packages/wordpress/plugin.json) | WordPress 导入：从只读导出文件迁移内容，保留原始来源与发布状态。 | integration | 无 | 无 | MIT | [Agent Blog contributors](https://github.com/Junming-Liang/agent-blog) |
@@ -60,6 +61,7 @@ flowchart LR
   p_pages["pages"]
   p_pages -. 可选 .-> p_editor
   p_publish_on_save["publish-on-save"]
+  p_theme_overwatch["theme-overwatch"]
   p_theme_paper["theme-paper"]
   p_theme_terminal["theme-terminal"]
   p_wordpress["wordpress"]

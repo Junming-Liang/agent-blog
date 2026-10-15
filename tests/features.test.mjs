@@ -68,12 +68,12 @@ test('disabling one feature preserves other outputs, drafts and source bytes', a
   for (const [name, bytes] of before) assert.equal(fs.readFileSync(path.join(root, 'content', name), 'utf8'), bytes);
 });
 
-test('feature pages share either theme and notes compose with Markdown and date formatting', async t => {
+test('feature pages share bundled themes and notes compose with Markdown and date formatting', async t => {
   const root = site(t), seed = await loadSite(root);
   seed.posts.write('article', post('Article title'), null);
   const note = seed.posts.write('note', post('Note title', 'note', false, '**Short thought**'), null);
   const bytes = fs.readFileSync(path.join(root, 'content/note.md'), 'utf8');
-  for (const theme of ['theme-paper', 'theme-terminal']) {
+  for (const theme of ['theme-paper', 'theme-terminal', 'theme-overwatch']) {
     const blog = await loadSite(root, {config: {...seed.site, plugins: [entry('notes'), entry('archive'), entry('links'), entry('navigation'), entry('date-format'), entry('markdown'), entry(theme)]}});
     await build(blog);
     const html = read(root, 'notes/index.html');

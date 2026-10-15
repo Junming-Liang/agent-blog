@@ -1,0 +1,9 @@
+{
+  "name": "@agent-blog/theme-overwatch",
+  "version": "0.2.0",
+  "license": "MIT",
+  "type": "module",
+  "exports": "./index.mjs",
+  "files": ["index.mjs", "public", "plugin.json", "README.md"],
+  "peerDependencies": {"@agent-blog/core": "^0.2.0"}
+}
