@@ -29,7 +29,8 @@ if ($rebase) {
     define('WP_SITEURL', $origin);
 }
 if ($login) {
-    if (!isset($_REQUEST['redirect_to'])) $_REQUEST['redirect_to'] = $origin . '/__editor/';
+    // WordPress rebuilds REQUEST from GET and POST during bootstrap.
+    if (!isset($_REQUEST['redirect_to'])) $_GET['redirect_to'] = $_REQUEST['redirect_to'] = $origin . '/__editor/';
     require $root . '/wp-login.php';
     exit;
 }
