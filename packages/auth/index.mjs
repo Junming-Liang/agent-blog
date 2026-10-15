@@ -103,7 +103,7 @@ export default {
     function redirect(res, target) { res.writeHead(302, {Location: target, 'Cache-Control': 'no-store'}); res.end(); }
     function page(setup) {
       const e = api.escapeHTML;
-      return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${setup ? '设置登录' : '登录'} · ${e(api.site.title)}</title><link rel="stylesheet" href="/_assets/auth/style.css"></head><body><main><a class="brand" href="/">${e(api.site.title)}</a><p class="eyebrow">YOUR WORDS, YOUR SPACE</p><h1>${setup ? '建立你的写作入口' : '欢迎回来'}</h1><p class="lead">${setup ? '设置独立的站点账号，开启你的写作空间。' : '登录后继续写作，管理你的文章与说说。'}</p><form data-mode="${setup ? 'setup' : 'login'}">${setup ? '<label id="token-field">初始化码<input name="token" required autocomplete="off"></label>' : ''}<label>用户名<input name="username" required maxlength="80" autocomplete="username"></label><label>密码<input type="password" name="password" required ${setup ? 'minlength="15"' : ''} maxlength="256" autocomplete="${setup ? 'new-password' : 'current-password'}"></label>${setup ? '<small>密码至少 15 个字符，可以使用空格和中文。</small>' : ''}<button>${setup ? '设置账号并进入' : '进入写作空间'}</button><p id="message" role="status" aria-live="polite"></p></form><a class="back" href="/">← 返回博客</a></main><script type="module" src="/_assets/auth/login.mjs"></script></body></html>`;
+      return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${setup ? '设置登录' : '登录'} · ${e(api.site.title)}</title><link rel="stylesheet" href="/_assets/auth/style.css"></head><body><main><a class="brand" href="/">${e(api.site.title)}</a><p class="eyebrow">YOUR WORDS, YOUR SPACE</p><h1>${setup ? '建立你的写作入口' : '欢迎回来'}</h1><p class="lead">${setup ? '设置独立的站点账号，开启你的写作空间。' : '登录后继续写作，管理你的文章与说说。'}</p><form data-mode="${setup ? 'setup' : 'login'}">${setup ? '<label id="token-field">初始化码<input name="token" required autocomplete="off"></label>' : ''}<label>用户名<input name="username" required maxlength="80" autocomplete="username"></label><label>密码<input type="password" name="password" required ${setup ? 'minlength="15"' : ''} maxlength="256" autocomplete="${setup ? 'new-password' : 'current-password'}"></label>${setup ? '<small>密码至少 15 个字符，可以使用空格和中文。</small>' : ''}<button>${setup ? '设置账号并进入' : '进入写作空间'}</button><p id="message" role="status" aria-live="polite"></p></form><a class="back" href="/">← 返回博客</a></main><script type="module" src="/_assets/auth/login.js"></script></body></html>`;
     }
     api.asset('/_assets/auth', fileURLToPath(new URL('./public', import.meta.url)));
     api.command({name: 'auth-status', description: 'Describe independent login setup without revealing credentials.', run: () => ({configured: !!credentials(), setupPending: !!read('bootstrap')})});
@@ -165,6 +165,6 @@ export default {
       if (!['GET', 'HEAD'].includes(req.method)) sameOrigin(req);
       return next();
     });
-    api.optional('editor')?.register({name: 'auth', module: '/_assets/auth/editor.mjs'});
+    api.optional('editor')?.register({name: 'auth', module: '/_assets/auth/editor.js'});
   }
 };
