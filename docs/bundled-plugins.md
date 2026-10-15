@@ -2,7 +2,7 @@
 
 功能按职责分包，每个包通过 Plugin API 注册自己的入口。启用“说说”不要求启用网页编辑器、导航、Markdown 或皮肤；存在编辑器时，说说插件才贡献“新建说说”按钮。停用插件并重新构建会撤下它生成的页面、按钮和资源，文章源文件保持不变。
 
-`agent-blog init ./my-blog` 默认启用当前系统的 18 个插件，包括下列功能包，以及 Markdown、高亮、公式、编辑器、编辑器语言、编辑器着色、Agent 上下文、纸张皮肤、WordPress 迁移和插件广场。源码安装还附带可切换的终端皮肤。默认安装只选择一个皮肤；其他功能仍可独立启停。
+`agent-blog init ./my-blog` 默认启用当前系统的 18 个插件，包括下列功能包，以及 Markdown、高亮、公式、编辑器、编辑器语言、编辑器着色、Agent 上下文、纸张皮肤、WordPress 迁移和插件广场。源码安装还附带可切换的终端皮肤与[守望先锋 2 灵感皮肤](../packages/theme-overwatch/README.md)。默认安装只选择一个皮肤；其他功能仍可独立启停。
 
 `--preset minimal` 可显式创建纯核心站点，`--preset writer` 保留原来的七个写作插件组合。默认组合只在初始化时写入 `blog.json`，不会在每次启动时强行补回已停用的插件，也不会改写已有站点配置。
 
@@ -58,7 +58,7 @@ agent-blog schema --json
 
 ## 展示与换肤
 
-说说列表及归档、友情链接页面通过当前布局生成完整页面，切换 Paper、Terminal 或自定义皮肤会同时作用于这些页面。说说正文复用当前 renderer 和 transform，因此 Markdown、代码高亮、公式各自按启用状态生效。
+说说列表及归档、友情链接页面通过当前布局生成完整页面，切换 Paper、Terminal、Overwatch 或自定义皮肤会同时作用于这些页面。说说正文复用当前 renderer 和 transform，因此 Markdown、代码高亮、公式各自按启用状态生效。
 
 说说提供可替换的默认组件 `notes:card`、`notes:list`；皮肤可以调用 `api.component('notes:card', render)` 单独替换说说卡片。导航使用 `header:nav`，其他功能通过 `navigation:items` 贡献链接。缺少导航插件时，只是不展示这些导航项。
 
