@@ -1,0 +1,7 @@
+{
+  "name": "theme-terminal",
+  "apiVersion": 1,
+  "requires": [],
+  "optionalRequires": [],
+  "extends": []
+}

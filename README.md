@@ -8,13 +8,15 @@ A small, pluggable blog framework for humans and coding agents.
 [![Node.js: 22+](https://img.shields.io/badge/Node.js-22%2B-green.svg)](package.json)
 [![Plugin API: v1](https://img.shields.io/badge/plugin_API-v1-orange.svg)](docs/plugin-api.md)
 
-[快速开始](#快速开始) · [Agent 工作流](#agent-工作流) · [插件开发](#插件开发) · [接口文档](docs/plugin-api.md) · [贡献指南](CONTRIBUTING.md)
+[快速开始](#快速开始) · [Agent 工作流](#agent-工作流) · [插件广场](marketplace/README.md) · [插件开发](#插件开发) · [接口文档](docs/plugin-api.md) · [贡献指南](CONTRIBUTING.md) · [更新与升级](CHANGELOG.md)
 
 Agent Blog 是一个以 Agent 为主要开发者和操作者的轻量博客框架。人可以在网页或本地文件里写作，Agent 可以通过 CLI 读取文章、提交修改、发现已有能力，并编写新的插件。
 
+**功能必须以独立插件实现。** 新增功能分别拥有自己的配置、内容字段、CLI 与编辑入口；内核只承载通用协议，皮肤只负责展示。插件按声明的依赖协作，关闭插件保留内容。
+
 核心没有运行时依赖。文章格式、存储、渲染、皮肤、页面组件、编辑器工具和构建流程都有公开扩展入口。默认内容保存在可读的 Markdown 文件里，最终博客输出为静态文件。
 
-**项目状态：** 早期开发版本 `0.1.0`，插件协议 `apiVersion: 1`。目前从源码运行，尚未发布到 npm。现有能力与运行边界见下文。
+**项目状态：** 早期开发版本 `0.2.0`，插件协议 `apiVersion: 1`。目前从源码运行，尚未发布到 npm。现有能力与运行边界见下文。
 
 ## 为什么选择 Agent Blog
 
@@ -77,7 +79,7 @@ npm exec -- agent-blog new hello --title "我的第一篇文章" --site ./my-blo
 npm exec -- agent-blog serve --site ./my-blog --port 4174
 ```
 
-`writer` 预设启用 Markdown、高亮、公式和编辑器。省略 `--preset writer` 会创建不启用插件的最小站点。新文章默认是草稿，可以在网页编辑器中编辑并发布。
+`writer` 预设启用 Markdown、高亮、公式、编辑器及独立的编辑器语言、着色、Agent 上下文插件。省略 `--preset writer` 会创建不启用插件的最小站点。新文章默认是草稿，可以在网页编辑器中编辑并发布。
 
 ## Agent 工作流
 
@@ -163,7 +165,7 @@ npm exec -- agent-blog plugin enable ./plugins/stats.mjs --site ./my-blog
 npm exec -- agent-blog stats --drafts --site ./my-blog --json
 ```
 
-插件通过 `requires` 声明依赖，核心检查接口版本、依赖顺序和重复注册。新增命令自动进入 `schema`。修改插件源码或配置后重启预览进程。
+插件通过 `requires` 声明必需依赖，通过 `optionalRequires` 声明可选联动，通过 `extends` 声明继承的基础插件。核心检查接口版本、依赖顺序、服务访问和路由／输出冲突。新增命令自动进入 `schema`。修改插件源码或配置后重启预览进程。
 
 ### 扩展接口
 
@@ -171,15 +173,31 @@ npm exec -- agent-blog stats --drafts --site ./my-blog --json
 | --- | --- | --- |
 | 文章格式与存储 | `codec`、`storage`、`validator` | 新格式、同步存储适配器、自定义字段检查 |
 | 正文渲染 | `renderer`、`transform` | Markdown、公式、高亮、正文处理 |
-| 皮肤与组件 | `layout`、`component`、`slot` | 整页主题、卡片、导航、页脚、相关文章 |
+| 皮肤与组件 | `layout`、`component`（含 fallback）、`slot`、`indexFilter` | 整页主题、卡片、导航、页脚、相关文章 |
 | 静态输出 | `output`、`asset`、`stylesheet` | 独立页面、RSS、搜索索引、样式和脚本 |
 | URL 与构建 | `permalink`、`builder` | 自定义文章路径、构建包装或替换 |
 | Agent 与本地工具 | `command`、`execute`、`commandMiddleware` | 导入、检查、模型调用及写作工作流 |
 | HTTP 与通知 | `route`、`middleware`、`on` | 本地工具接口、请求处理和完成通知 |
-| 插件协作 | `provide`、`require` | 分享服务并组合功能 |
+| 插件协作 | `provide`、`require`、`optional` | 分享服务并组合功能 |
 | 编辑器内部 | editor service + browser API | 按钮、面板、字段、事件和 CodeMirror 扩展 |
 
 完整协议：[插件开发说明](docs/plugin-api.md)。类型定义：[核心 API](packages/core/api.d.ts)、[编辑器服务](packages/editor/api.d.ts)、[浏览器扩展](packages/editor/browser-api.d.ts)。
+
+## 插件广场与社区投稿
+
+[浏览 GitHub 插件广场](marketplace/README.md)。说说、页面、导航、归档、友情链接、日期格式、页脚、保存后构建及 Agent 编辑上下文均为独立插件；配置和操作见[独立功能插件](docs/bundled-plugins.md)。Markdown、高亮和公式插件分别提供自己的编辑按钮，禁用对应插件后按钮随之移除。
+
+欢迎任何人通过 PR 分享插件。插件源码可保存在自己的公开仓库，广场收录元数据与固定 commit；也可贡献本仓库功能包。按照[投稿指南](docs/marketplace.md)新增 `marketplace/entries/<id>.json`，运行 `npm run marketplace:build` 和 `npm run marketplace:check`，使用[插件 PR 模板](.github/PULL_REQUEST_TEMPLATE/plugin.md)提交。
+
+启用目录插件后，Agent 可离线发现插件及依赖：
+
+```sh
+npm exec -- agent-blog plugin enable @agent-blog/marketplace --site ./my-blog
+npm exec -- agent-blog marketplace-list --query 说说 --site ./my-blog --json
+npm exec -- agent-blog marketplace-get notes --site ./my-blog --json
+```
+
+目录查询只读取描述数据。安装、源码审阅及启用由站点维护者决定。插件在同一 Node.js 进程中运行，独立性通过注册、依赖、数据归属和启停契约保证；它不提供不可信代码的进程隔离。运行时报错会阻止失败构建替换已成功构建的页面，内容保存后的通知失败则独立返回警告。
 
 ## 皮肤与编辑器扩展
 

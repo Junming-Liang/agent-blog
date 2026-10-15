@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "archive",
+  "name": "文章归档",
+  "summary": "生成文章归档页，支持配置兼容旧链接的页面。",
+  "category": "content",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/archive",
+    "package": "@agent-blog/archive"
+  }
+}

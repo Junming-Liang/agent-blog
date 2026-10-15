@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "theme-terminal",
+  "name": "终端主题",
+  "summary": "以终端风格展示博客，可以独立替换或禁用。",
+  "category": "theme",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/theme-terminal",
+    "package": "@agent-blog/theme-terminal"
+  }
+}

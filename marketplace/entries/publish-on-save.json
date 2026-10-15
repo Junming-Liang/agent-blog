@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "publish-on-save",
+  "name": "保存后发布",
+  "summary": "在内容保存或删除后重新生成公开静态页面。",
+  "category": "publishing",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/publish",
+    "package": "@agent-blog/publish"
+  }
+}

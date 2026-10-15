@@ -1,3 +1,4 @@
+import manifest from './plugin.json' with {type: 'json'};
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import TurndownService from 'turndown';
@@ -91,6 +92,7 @@ export function importWordPress(api, data, options = {}) {
     const terms = (data.terms || []).filter(term => String(term.object_id) === id);
     const value = {
       metadata: {
+        type: row.post_type === 'shuoshuo' ? 'note' : row.post_type,
         title: row.post_title.trim() || `未命名页面 ${id}`,
         draft: row.post_status !== 'publish' || Boolean(row.post_password),
         ...(utc ? {date: utc} : {}),
@@ -110,7 +112,7 @@ export function importWordPress(api, data, options = {}) {
 }
 
 export default {
-  name: 'wordpress', apiVersion: 1,
+  ...manifest,
   description: 'Import a read-only WordPress export as editable Markdown without overwriting existing posts.',
   optionsSchema: {type: 'object', properties: {legacyOrigins: {type: 'array', items: {type: 'string'}, description: 'Previous URLs of this WordPress installation; links become local paths.'}}},
   setup(api, options) {

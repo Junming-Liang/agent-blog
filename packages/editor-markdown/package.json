@@ -1,0 +1,26 @@
+{
+  "name": "@agent-blog/editor-markdown",
+  "version": "0.2.0",
+  "license": "MIT",
+  "type": "module",
+  "exports": "./index.mjs",
+  "files": [
+    "index.mjs",
+    "browser.mjs",
+    "public",
+    "plugin.json"
+  ],
+  "dependencies": {
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/lang-javascript": "^6.2.0",
+    "@codemirror/lang-python": "^6.2.0",
+    "@codemirror/language": "^6.11.0"
+  },
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0",
+    "@agent-blog/editor": "^0.2.0"
+  },
+  "agentBlog": {
+    "browser": "./browser.mjs"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "editor-agent",
+  "name": "Agent 交接",
+  "summary": "为编辑器添加复制给 Agent 的内容交接操作。",
+  "category": "editor",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [
+    "editor"
+  ],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/editor-agent",
+    "package": "@agent-blog/editor-agent"
+  }
+}

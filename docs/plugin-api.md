@@ -213,3 +213,63 @@ editor.register({name: 'my-tools', module: '/_assets/my-tools/browser.mjs', opti
 完整实例是 `examples/demo/plugins/writing-tools.mjs` 及其浏览器模块：添加“引用”“统计”按钮、正文统计面板和系列字段；浏览器使用未保存内容调用 `writing-stats`，Agent 也能通过 CLI 使用该命令。自定义字段在保存期间继续编辑时也会保留，下一次保存再提交。
 
 异步插件操作应在开始时取得 draft 副本，返回后确认当前文章的 slug / revision 仍匹配，再修改界面；`getDraft` 不提供跨文章或与任意外部编辑器的事务隔离。浏览器扩展与服务器插件都是使用者信任的代码。
+
+
+## 独立功能与可选联动
+
+每个新功能使用独立插件。内核只提供通用宿主协议；功能的数据字段、CLI、页面和编辑入口由同一个插件负责。相关的展示可由皮肤覆盖，数据和行为的职责仍归功能插件。
+
+`optionalRequires: ['editor']` 表示：编辑器启用时先初始化编辑器，否则插件独立运行。通过 `api.optional('editor')` 获取服务，缺失时返回 `undefined`。`api.require(name)` 要求服务存在；消费其他插件的服务时，提供方必须出现在 `requires` 或 `optionalRequires`。可选依赖存在时同样检查循环。注册的路由前缀不得互相覆盖，也不得遮住静态输出。
+
+```js
+export default {
+  name: 'example-feature', apiVersion: 1, optionalRequires: ['editor'],
+  setup(api) {
+    api.indexFilter(post => post.metadata.type !== 'example');
+    api.component('example:card', c => api.escapeHTML(c.post.metadata.title), {fallback: true});
+    api.slot('index:after', c => c.posts.length ? c.render('example:card', {post: c.posts[0]}) : '');
+  }
+};
+```
+
+`indexFilter` 是同步布尔谓词，只筛选首页主要文章列表。多个过滤器按 AND 组合，不能删改文件。页面上下文的 `posts` 仍包含全部已发布内容，方便功能插件在自己的区块展示说说等内容。插件移除后其过滤器、页面和资源随配置重新加载撤下，内容文件保留，其他插件继续工作。
+
+`component(name, render, {fallback: true})` 声明功能默认展示。普通 `component(name, render)` 可覆盖它；两者注册顺序无关。`renderDefault` 使用功能 fallback，再使用内置组件。相同层次重复注册会报错。新增功能组件用 `插件名:组件名`，例如 `notes:card`；公共日期展示由 `date` 组件负责，页头导航通过 `header:nav` 插槽贡献。
+
+页面及静态输出上下文都有 `renderPost(post)`、`render`、`renderDefault`、`slot` 和 `permalink`。静态输出还提供 `renderPage({title, html})`，以当前皮肤渲染独立页面；`url` 是当前页面 URL。输出回调默认只收到已发布内容。`transform` 回调也提供 `permalink`，可用于兼容旧页面。
+
+编辑器浏览器 API 新增 `newPost({metadata?, body?})`，保留保存中和未保存内容确认逻辑，返回是否新建成功。`getSite()` 返回当前站点标识，`isDirty()` 返回是否存在未保存修改。插件注册按钮、节点、事件与语法扩展后若 setup 失败，编辑器撤回该扩展已注册的 UI 和监听，不影响其他扩展。插件仍是受信任的同进程代码，不承诺阻止恶意文件访问或进程崩溃。
+
+扩展通过追加插槽组合，通过命名空间避免覆盖。正文 transform 和插槽获得独立的内容快照；修改快照不会写回内容文件或影响其他插件。声明依赖的共享服务允许按其服务协议协作，插件不得绕过协议修改其他插件内部状态。
+
+
+## 插件清单、依赖与继承的维护
+
+可分享的包提供 `plugin.json`，包含 `name`、`apiVersion`、`requires`、`optionalRequires`、`extends`。运行时入口导入并展开同一个清单，插件广场静态校验这些字段与条目完全一致；npm 依赖与许可证核对 `package.json`。避免代码、文档和目录各自维护不同的关系。
+
+`requires` 是必需的功能依赖；`optionalRequires` 在存在时排序、缺失时独立运行；`extends` 表示必需的基础插件，先初始化基础能力，子插件通过服务、插槽、默认组件组合继承行为。继承关系不会自动复制对象或绕过独占接口检查：基础插件应将允许皮肤覆盖的组件注册为 fallback，存储、renderer、layout 等独占适配器仍只允许一个提供者。依赖与继承形成同一初始化图，缺失基础、循环关系和未声明的服务访问都会报错。
+
+发布和升级须按[插件广场流程](marketplace.md)审查固定源码版本、关系图、反向依赖、接口兼容以及基础插件变更的影响。启用前审查源码，升级通过明确配置；目录不会自动下载安装插件。
+
+浏览器插件在 workspace 的 `package.json` 中声明 `"agentBlog": {"browser": "./browser.mjs"}` 后，`npm run build:editor` 会分别构建到各插件自己的 `public/bundle/browser.js`。插件必须将 `public` 加入发布文件清单，并通过自己的私有 `api.asset` 注册浏览器资源。`npm run build:editor -- editor-markdown` 只构建 Markdown 编辑插件，不写入编辑器或其他插件的目录；`npm run build:editor -- editor` 仅构建编辑器本身。普通 DOM 扩展仍可直接提供源码模块。
+
+### 编辑器共享模块契约
+
+`@agent-blog/editor/runtime` 公开 `browser-runtime.json`（`apiVersion: 1`）。编辑器页面在加载模块前安装 import map，提供 `@codemirror/state`、`@codemirror/view`、`@codemirror/language`、`@codemirror/commands`、`@lezer/common` 和 `@lezer/highlight`。这些模块由编辑器统一构建，保证类、Facet 和语法标签的对象身份一致；编辑器产物不包含 Markdown、JavaScript、Python 等语言语法。
+
+需要这些共享模块的插件声明 `@agent-blog/editor` peer dependency，以及运行时 `requires: ['editor']`。独立构建时将契约里的模块全部设为 bundler 的 `external`，保留裸模块导入交给 import map 解析；其他依赖和语言解析器打包在插件自己的产物内。例如：
+
+```js
+import runtime from '@agent-blog/editor/runtime' with {type: 'json'};
+import {build} from 'esbuild';
+
+await build({
+  entryPoints: ['browser.mjs'],
+  outfile: 'public/bundle/browser.js',
+  bundle: true,
+  format: 'esm',
+  external: Object.keys(runtime.modules)
+});
+```
+
+当前契约对应 CodeMirror 6 和 Lezer 1。`autocomplete`、`lint` 等模块尚未列为共享接口，插件可以将自身使用的实现打包在包内；需要跨插件交换它们的 Facet、状态或对象时，应先扩充明确的共享契约，不能假设各自产物里的副本具有相同身份。兼容当前契约的插件可单独构建、发布和升级，无需重新发布编辑器。

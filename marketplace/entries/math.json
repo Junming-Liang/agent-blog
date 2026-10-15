@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "math",
+  "name": "数学公式",
+  "summary": "使用 KaTeX 渲染数学公式；可选提供编辑器公式按钮。",
+  "category": "rendering",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [
+    "markdown"
+  ],
+  "optionalRequires": [
+    "editor"
+  ],
+  "extends": [],
+  "dependencies": {
+    "katex": "^0.16.0"
+  },
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/math",
+    "package": "@agent-blog/math"
+  }
+}

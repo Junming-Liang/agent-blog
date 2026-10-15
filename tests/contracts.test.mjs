@@ -49,7 +49,7 @@ test('revisions prevent CLI/editor clobbering and preserve custom metadata', asy
 test('dependency order is resolved and rendering plugins remain removable', async t => {
   const root = site(t, [plugin('math'), plugin('highlight'), plugin('markdown'), plugin('editor')]);
   const blog = await loadSite(root);
-  assert.deepEqual(blog.plugins.map(p => p.name), ['markdown', 'math', 'highlight', 'editor']);
+  assert.deepEqual(blog.plugins.map(p => p.name), ['editor', 'markdown', 'math', 'highlight']);
   const article = blog.posts.write('math', post('# Heading\n\n$E=mc^2$\n\n$$\nx^2 + y^2 = z^2\n$$\n\n```javascript\nconst value = 1;\n```\n\n<script>alert(1)</script>'), null);
   const rendered = await blog.renderPost(article);
   assert.match(rendered, /<h1>Heading<\/h1>/);
@@ -135,7 +135,7 @@ test('writer presets work outside the framework checkout without adding core dep
   const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-blog-writer-')); t.after(() => fs.rmSync(parent, {recursive: true, force: true}));
   const root = path.join(parent, 'site');
   await main(['init', root, '--preset', 'writer']);
-  assert.deepEqual((await loadSite(root)).plugins.map(p => p.name), ['markdown', 'highlight', 'math', 'editor']);
+  assert.deepEqual((await loadSite(root)).plugins.map(p => p.name), ['editor', 'markdown', 'highlight', 'math', 'editor-markdown', 'editor-highlight', 'editor-agent']);
 });
 test('installed CLI symlinks execute the same machine-readable command entry', async t => {
   const root = site(t), link = path.join(root, 'agent-blog');

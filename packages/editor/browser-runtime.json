@@ -1,0 +1,11 @@
+{
+  "apiVersion": 1,
+  "modules": {
+    "@codemirror/state": "state",
+    "@codemirror/view": "view",
+    "@codemirror/language": "language",
+    "@codemirror/commands": "commands",
+    "@lezer/common": "lezer-common",
+    "@lezer/highlight": "lezer-highlight"
+  }
+}

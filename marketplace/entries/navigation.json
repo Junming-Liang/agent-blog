@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "navigation",
+  "name": "导航",
+  "summary": "按配置提供站点导航和可扩展导航条目。",
+  "category": "content",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/navigation",
+    "package": "@agent-blog/navigation"
+  }
+}

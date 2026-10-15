@@ -1,10 +1,12 @@
+import manifest from './plugin.json' with {type: 'json'};
 import fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
+import runtime from './browser-runtime.json' with {type: 'json'};
 
 /** @type {import('@agent-blog/core').Plugin} */
 export default {
-  name: 'editor', apiVersion: 1,
-  description: 'Local writing workspace with syntax highlighting and live preview.',
+  ...manifest,
+  description: 'Local writing workspace with a shared extension runtime and live preview.',
   setup(api) {
     const extensions = new Map();
     api.provide('editor', {
@@ -20,7 +22,9 @@ export default {
     api.route('/__editor', async ({req, res, pathname, blog, json, html, readJSON}) => {
       if (pathname === '/__editor' || pathname === '/__editor/') {
         if (req.method !== 'GET') return api.fail('METHOD_NOT_ALLOWED', 'Use GET.', 405);
-        return html(res, fs.readFileSync(new URL('./public/index.html', import.meta.url), 'utf8'));
+        const imports = Object.fromEntries(Object.entries(runtime.modules).map(([specifier, file]) => [specifier, `/_assets/editor/bundle/runtime/${file}.js`]));
+        const source = fs.readFileSync(new URL('./public/index.html', import.meta.url), 'utf8');
+        return html(res, source.replace('<head>', `<head><script type="importmap">${JSON.stringify({imports})}</script>`));
       }
       if (pathname === '/__editor/api/extensions' && req.method === 'GET') return json(res, 200, {ok: true, data: [...extensions.values()]});
       const command = /^\/__editor\/api\/commands\/([a-z][a-z0-9-]*)$/.exec(pathname);

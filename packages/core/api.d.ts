@@ -55,13 +55,14 @@ export interface Command {
 }
 export interface RenderContext {post: Post; site: Site}
 export interface PageContext {
-  site: Site; post?: Post; html: string; posts: Post[]; styles: string[];
+  site: Site; post?: Post; html: string; posts: Post[]; styles: string[]; url?: string;
+  renderPost(post: Post): Promise<string>;
   permalink(post: Post): string;
   render(name: string, overrides?: Partial<PageContext>): Promise<string>;
   renderDefault(name: string, overrides?: Partial<PageContext>): Promise<string>;
   slot(name: string): Promise<string>;
 }
-export interface OutputContext {site: Site; posts: Post[]}
+export interface OutputContext extends PageContext {renderPage(input: {title: string; html: string}): Promise<string>}
 export interface RouteContext {
   req: IncomingMessage;
   res: ServerResponse;
@@ -80,11 +81,13 @@ export interface PluginAPI {
   fail(code: string, message: string, status?: number): never;
   provide<T>(name: string, service: T): void;
   require<T>(name: string): T;
+  optional<T>(name: string): T | undefined;
   renderer(render: (body: string, context: RenderContext) => string | Promise<string>): void;
-  transform(transform: (context: RenderContext & {html: string}) => string | Promise<string>): void;
+  transform(transform: (context: RenderContext & {html: string; permalink(post: Post): string}) => string | Promise<string>): void;
   layout(layout: (context: PageContext) => string | Promise<string>, options?: {unstyled?: boolean}): void;
-  component(name: string, render: (context: PageContext) => string | Promise<string>): void;
+  component(name: string, render: (context: PageContext) => string | Promise<string>, options?: {fallback?: boolean}): void;
   slot(name: string, render: (context: PageContext) => string | Promise<string>): void;
+  indexFilter(include: (post: Post) => boolean): void;
   storage(adapter: StorageAdapter): void;
   codec(adapter: ContentCodec): void;
   validator(validate: (input: PostInput) => void): void;
@@ -105,11 +108,15 @@ export interface Plugin {
   apiVersion: 1;
   description?: string;
   requires?: string[];
+  /** Order after these plugins when present; their absence must not break this plugin. */
+  optionalRequires?: string[];
+  /** Required base plugins whose public capabilities this plugin builds upon. */
+  extends?: string[];
   /** Machine-readable configuration description; setup validates domain options. */
   optionsSchema?: Record<string, unknown>;
   setup(api: PluginAPI, options: Record<string, unknown>): void | Promise<void>;
 }
-export interface LoadedPlugin {name: string; apiVersion: number; description: string; requires: string[]; use: string; optionsSchema?: Record<string, unknown>}
+export interface LoadedPlugin {name: string; apiVersion: number; description: string; requires: string[]; optionalRequires: string[]; extends: string[]; use: string; optionsSchema?: Record<string, unknown>}
 export interface Blog {
   site: Site;
   posts: ContentStore;

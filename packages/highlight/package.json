@@ -1,1 +1,19 @@
-{"name":"@agent-blog/highlight","version":"0.1.0","type":"module","exports":"./index.mjs","files":["index.mjs","public"],"dependencies":{"highlight.js":"^11.11.0"}}
+{
+  "name": "@agent-blog/highlight",
+  "version": "0.2.0",
+  "type": "module",
+  "exports": "./index.mjs",
+  "files": [
+    "index.mjs",
+    "public",
+    "editor",
+    "plugin.json"
+  ],
+  "dependencies": {
+    "highlight.js": "^11.11.0"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  }
+}

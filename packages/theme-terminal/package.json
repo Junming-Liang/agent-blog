@@ -1,8 +1,15 @@
 {
   "name": "@agent-blog/theme-terminal",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
   "exports": "./index.mjs",
-  "files": ["index.mjs", "public"]
+  "files": [
+    "index.mjs",
+    "public",
+    "plugin.json"
+  ],
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  }
 }

@@ -1,0 +1,11 @@
+{
+  "name": "math",
+  "apiVersion": 1,
+  "requires": [
+    "markdown"
+  ],
+  "optionalRequires": [
+    "editor"
+  ],
+  "extends": []
+}

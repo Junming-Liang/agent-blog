@@ -27,7 +27,7 @@ export async function loadSite(directory, {config: override} = {}) {
   const config = override || stored;
   const configFile = path.join(root, 'blog.json');
   const site = Object.freeze({...config, root});
-  const events = notifications(), validators = [], middleware = [], commandMiddleware = [], components = new Map(), slots = new Map();
+  const events = notifications(), validators = [], middleware = [], commandMiddleware = [], components = new Map(), defaults = new Map(), slots = new Map(), indexFilters = [];
   let store, codec = jsonMarkdown, storage, builder, link = post => `/posts/${encodeURIComponent(post.slug)}/`;
   const replaced = new Set();
   const replace = (name, value) => { if (replaced.has(name)) fail('DUPLICATE_ADAPTER', `Only one ${name} adapter can be enabled.`); replaced.add(name); return value; };
@@ -35,7 +35,7 @@ export async function loadSite(directory, {config: override} = {}) {
     store ||= contentStore(root, {codec, ...(storage ? {storage} : {}), validators, emit: events.emit});
     return store[name](...args);
   }])));
-  const services = new Map(), commands = new Map(), outputs = new Map(), routes = [], transforms = [], assets = [{prefix: '/_assets/core', directory: corePublic, public: true}], styles = ['/_assets/core/site.css'], plugins = [];
+  const services = new Map(), serviceOwners = new Map(), commands = new Map(), outputs = new Map(), routes = [], transforms = [], assets = [{prefix: '/_assets/core', directory: corePublic, public: true}], styles = ['/_assets/core/site.css'], plugins = [];
   let renderer = body => `<pre class="plain-text">${escapeHTML(body)}</pre>`, layout = context => context.render('shell'), hasRenderer = false, hasLayout = false;
   const api = Object.freeze({
     apiVersion: 1, site, posts, escapeHTML, fail,
@@ -50,15 +50,17 @@ export async function loadSite(directory, {config: override} = {}) {
       codec = replace('codec', adapter);
     },
     validator(fn) { if (typeof fn !== 'function') fail('INVALID_PLUGIN', 'validator needs a synchronous function.'); validators.push(fn); },
-    component(name, fn) {
-      if (!/^[a-z][a-z0-9:-]*$/.test(name) || typeof fn !== 'function' || components.has(name)) fail('INVALID_COMPONENT', 'Register a unique component name and render function.');
-      components.set(name, fn);
+    component(name, fn, {fallback = false} = {}) {
+      const target = fallback ? defaults : components;
+      if (!/^[a-z][a-z0-9:-]*$/.test(name) || typeof fn !== 'function' || target.has(name)) fail('INVALID_COMPONENT', `Register a unique component name and render function: ${name}.`);
+      target.set(name, fn);
     },
     slot(name, fn) {
       if (!/^[a-z][a-z0-9:-]*$/.test(name) || typeof fn !== 'function') fail('INVALID_SLOT', 'slot needs a name and render function.');
       if (!slots.has(name)) slots.set(name, []);
       slots.get(name).push(fn);
     },
+    indexFilter(fn) { if (typeof fn !== 'function') fail('INVALID_PLUGIN', 'indexFilter needs a synchronous predicate.'); indexFilters.push(fn); },
     permalink(fn) { if (typeof fn !== 'function') fail('INVALID_PERMALINK', 'permalink needs a function.'); link = replace('permalink', fn); },
     builder(fn) { if (typeof fn !== 'function') fail('INVALID_PLUGIN', 'builder needs a function.'); builder = replace('builder', fn); },
     middleware(fn) { if (typeof fn !== 'function') fail('INVALID_PLUGIN', 'middleware needs a function.'); middleware.push(fn); },
@@ -86,12 +88,14 @@ export async function loadSite(directory, {config: override} = {}) {
     route(prefix, handler) {
       if (typeof handler !== 'function') fail('INVALID_ROUTE', 'route needs a handler function.');
       const normalized = prefix.replace(/\/$/, '');
-      if (!/^\/[a-zA-Z0-9_/-]+$/.test(prefix) || prefix === '/' || prefix.startsWith('/_assets') || routes.some(route => route.prefix === normalized)) fail('INVALID_ROUTE', prefix);
+      if (!/^\/[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*\/?$/.test(prefix) || prefix.startsWith('/_assets') || routes.some(route => route.prefix === normalized || route.prefix.startsWith(normalized + '/') || normalized.startsWith(route.prefix + '/'))) fail('INVALID_ROUTE', `Overlapping or invalid route: ${prefix}`);
+      if ([...outputs.keys()].some(name => ('/' + name).startsWith(normalized + '/') || '/' + name === normalized)) fail('OUTPUT_COLLISION', `Route overlaps a static output: ${prefix}`);
       routes.push({prefix: normalized, handler});
     },
     output(relative, render) {
       if (typeof relative !== 'string' || !relative || relative.split('/').some(part => !part || part.startsWith('.') || part.includes('\\')) || path.isAbsolute(relative) || ['index.html', 'posts', '_assets'].includes(relative) || relative.startsWith('posts/') || relative.startsWith('_assets/') || [...outputs.keys()].some(name => name === relative || name.startsWith(relative + '/') || relative.startsWith(name + '/'))) fail('INVALID_OUTPUT', 'Use a unique relative output path outside the core page and asset paths.');
       if (typeof render !== 'function' && typeof render !== 'string') fail('INVALID_OUTPUT', 'Output needs a string or render function.');
+      if (routes.some(route => ('/' + relative).startsWith(route.prefix + '/') || '/' + relative === route.prefix)) fail('OUTPUT_COLLISION', `Static output overlaps a route: ${relative}`);
       outputs.set(relative, typeof render === 'string' ? () => render : render);
     },
     asset(prefix, directory, {public: published = true, include} = {}) {
@@ -121,7 +125,11 @@ export async function loadSite(directory, {config: override} = {}) {
     const plugin = (await import(pathToFileURL(resolved).href)).default;
     if (!plugin || !/^[a-z][a-z0-9-]*$/.test(plugin.name || '') || typeof plugin.setup !== 'function' || modules.has(plugin.name)) fail('INVALID_PLUGIN', specifier);
     if (plugin.apiVersion !== 1) fail('PLUGIN_API_VERSION', `${plugin.name}: this core supports plugin API version 1.`);
-    if (plugin.requires && (!Array.isArray(plugin.requires) || plugin.requires.some(name => typeof name !== 'string'))) fail('INVALID_PLUGIN', 'requires must be plugin names.');
+    for (const field of ['requires', 'optionalRequires', 'extends']) {
+      if (plugin[field] && (!Array.isArray(plugin[field]) || plugin[field].some(name => typeof name !== 'string' || !/^[a-z][a-z0-9-]*$/.test(name)) || new Set(plugin[field]).size !== plugin[field].length)) fail('INVALID_PLUGIN', `${field} must contain unique plugin names.`);
+    }
+    const relationships = [...(plugin.requires || []), ...(plugin.optionalRequires || []), ...(plugin.extends || [])];
+    if (new Set(relationships).size !== relationships.length) fail('INVALID_PLUGIN', `${plugin.name}: a dependency must have only one relationship.`);
     modules.set(plugin.name, {plugin, specifier, options: typeof entry === 'object' ? entry.options || {} : {}});
   }
   const visiting = new Set(), ready = new Set();
@@ -131,9 +139,23 @@ export async function loadSite(directory, {config: override} = {}) {
     if (!modules.has(name)) fail('MISSING_PLUGIN', `Enable the required plugin: ${name}`);
     visiting.add(name);
     const {plugin, specifier, options} = modules.get(name);
-    for (const dependency of plugin.requires || []) await setup(dependency);
-    await plugin.setup(api, options);
-    plugins.push({name, apiVersion: plugin.apiVersion, description: plugin.description || '', requires: plugin.requires || [], use: specifier, ...(plugin.optionsSchema ? {optionsSchema: plugin.optionsSchema} : {})});
+    for (const dependency of [...(plugin.requires || []), ...(plugin.extends || [])]) await setup(dependency);
+    for (const dependency of plugin.optionalRequires || []) if (modules.has(dependency)) await setup(dependency);
+    const service = (key, optional) => {
+      const owner = serviceOwners.get(key);
+      if (!owner) {
+        if (optional) return undefined;
+        fail('MISSING_SERVICE', `${name}: enable the plugin providing ${key} and declare its dependency.`);
+      }
+      if (owner !== name && !(plugin.requires || []).includes(owner) && !(plugin.optionalRequires || []).includes(owner) && !(plugin.extends || []).includes(owner)) fail('UNDECLARED_DEPENDENCY', `${name}: declare ${owner} before using its ${key} service.`);
+      return services.get(key);
+    };
+    await plugin.setup(Object.freeze({...api,
+      provide(key, value) { api.provide(key, value); serviceOwners.set(key, name); },
+      require: key => service(key, false),
+      optional: key => service(key, true)
+    }), options);
+    plugins.push({name, apiVersion: plugin.apiVersion, description: plugin.description || '', requires: plugin.requires || [], optionalRequires: plugin.optionalRequires || [], extends: plugin.extends || [], use: specifier, ...(plugin.optionsSchema ? {optionsSchema: plugin.optionsSchema} : {})});
     visiting.delete(name); ready.add(name);
   }
   for (const name of modules.keys()) await setup(name);
@@ -142,8 +164,8 @@ export async function loadSite(directory, {config: override} = {}) {
     return value;
   }
   async function renderPost(post) {
-    let html = checkHTML(await renderer(post.body, {post, site}));
-    for (const transform of transforms) html = checkHTML(await transform({html, post, site}));
+    let html = checkHTML(await renderer(post.body, {post: structuredClone(post), site}));
+    for (const transform of transforms) html = checkHTML(await transform({html, post: structuredClone(post), site, permalink}));
     return html;
   }
   function permalink(post) {
@@ -152,20 +174,24 @@ export async function loadSite(directory, {config: override} = {}) {
     return url;
   }
   function pageContext(context) {
-    return {...context, permalink,
+    return {...context, renderPost, permalink: post => context.outputSlug === post.slug ? context.url : permalink(post),
       render: (name, overrides = {}) => renderComponent(name, {...context, ...overrides}),
       renderDefault: (name, overrides = {}) => renderComponent(name, {...context, ...overrides}, true),
-      slot: async name => (await Promise.all((slots.get(name) || []).map(fn => fn(pageContext(context))))).map(checkHTML).join('')
+      slot: async name => (await Promise.all((slots.get(name) || []).map(fn => fn(pageContext({...context, posts: structuredClone(context.posts), post: context.post ? structuredClone(context.post) : undefined}))))).map(checkHTML).join('')
     };
   }
   async function renderComponent(name, context, builtin = false) {
-    const render = (builtin ? undefined : components.get(name)) || views[name];
+    const render = (builtin ? undefined : components.get(name)) || defaults.get(name) || views[name];
     if (!render) fail('MISSING_COMPONENT', `No component registered: ${name}`);
     return checkHTML(await render(pageContext(context)));
   }
   async function page(post, published = posts.list().filter(p => !p.metadata.draft)) {
-    const context = {site, post, html: '', posts: published, styles: [...styles]};
-    context.html = post ? await renderPost(post) : await renderComponent('list', context);
+    const context = {site, post, html: '', posts: published, styles: [...styles], url: post ? permalink(post) : '/'};
+    context.html = post ? await renderPost(post) : await renderComponent('list', {...context, posts: published.filter(post => indexFilters.every(filter => {
+      const included = filter(structuredClone(post));
+      if (typeof included !== 'boolean') fail('INVALID_INDEX_FILTER', 'indexFilter must synchronously return a boolean.');
+      return included;
+    }))});
     return checkHTML(await layout(pageContext(context)));
   }
   async function invoke(definition, invocation) {
@@ -179,7 +205,12 @@ export async function loadSite(directory, {config: override} = {}) {
     return invoke(commands.get(name), invocation);
   }
   async function renderOutput(name, published = posts.list().filter(post => !post.metadata.draft)) {
-    const value = await outputs.get(name)({site, posts: published});
+    const context = {site, posts: published, html: '', styles: [...styles], url: '/' + name.replace(/index\.html$/, '')};
+    const value = await outputs.get(name)({...pageContext(context), renderPage: async ({title, html}) => {
+      if (typeof title !== 'string' || typeof html !== 'string') fail('INVALID_OUTPUT', 'renderPage needs a title and HTML string.');
+      const post = {slug: name, metadata: {title, draft: false}, body: '', revision: ''};
+      return checkHTML(await layout(pageContext({...context, post, html, outputSlug: name})));
+    }});
     if (typeof value !== 'string') fail('INVALID_OUTPUT', 'Output renderers must return strings.');
     return value;
   }

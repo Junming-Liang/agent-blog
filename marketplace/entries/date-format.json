@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "date-format",
+  "name": "日期格式",
+  "summary": "通过独立的日期展示组件配置时区和显示格式。",
+  "category": "rendering",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/date-format",
+    "package": "@agent-blog/date-format"
+  }
+}

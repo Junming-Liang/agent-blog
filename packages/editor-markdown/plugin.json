@@ -1,0 +1,9 @@
+{
+  "name": "editor-markdown",
+  "apiVersion": 1,
+  "requires": [
+    "editor"
+  ],
+  "optionalRequires": [],
+  "extends": []
+}

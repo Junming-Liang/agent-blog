@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "editor",
+  "name": "网页编辑器",
+  "summary": "在浏览器中编辑与 CLI 共用的文章，提供编辑器扩展接口。",
+  "category": "editor",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.36.0",
+    "@codemirror/commands": "^6.8.0",
+    "@codemirror/language": "^6.11.0",
+    "@lezer/common": "^1.5.0",
+    "@lezer/highlight": "^1.2.0"
+  },
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/editor",
+    "package": "@agent-blog/editor"
+  }
+}

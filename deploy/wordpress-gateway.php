@@ -14,7 +14,7 @@ $uri = $_SERVER['REQUEST_URI'] ?? '';
 $path = parse_url($uri, PHP_URL_PATH);
 $rebase = ($_SERVER['AGENT_BLOG_WORDPRESS_REBASE'] ?? '') === '1';
 $login = $rebase && $path === '/wp-login.php';
-if (!is_string($path) || (!preg_match('#^/(?:__editor(?:/|$)|_assets/editor/)#', $path) && !$login)) respond_error(404, 'Not found.');
+if (!is_string($path) || (!preg_match('#^/(?:__editor(?:/|$)|_assets/)#', $path) && !$login)) respond_error(404, 'Not found.');
 $origin = $_SERVER['AGENT_BLOG_ORIGIN'] ?? '';
 $upstream = $_SERVER['AGENT_BLOG_UPSTREAM'] ?? '';
 $root = $_SERVER['AGENT_BLOG_WORDPRESS_ROOT'] ?? '';

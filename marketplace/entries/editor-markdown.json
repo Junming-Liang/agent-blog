@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "editor-markdown",
+  "name": "编辑器 Markdown 语言",
+  "summary": "为网页编辑器添加 Markdown 语言支持及代码围栏语言识别。",
+  "category": "editor",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [
+    "editor"
+  ],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/lang-javascript": "^6.2.0",
+    "@codemirror/lang-python": "^6.2.0",
+    "@codemirror/language": "^6.11.0"
+  },
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0",
+    "@agent-blog/editor": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/editor-markdown",
+    "package": "@agent-blog/editor-markdown"
+  }
+}

@@ -13,6 +13,9 @@ export interface EditorAPI {
     syntaxHighlighting: typeof import('@codemirror/language').syntaxHighlighting;
   };
   getDraft(): EditorDraft | null;
+  isDirty(): boolean;
+  getSite(): {root: string; title: string};
+  newPost(input?: {metadata?: Partial<Metadata>; body?: string}): boolean;
   updateDraft(patch: {metadata?: Partial<Metadata>; body?: string}): void;
   insert(before: string, after?: string): void;
   save(draft?: boolean): Promise<void>;

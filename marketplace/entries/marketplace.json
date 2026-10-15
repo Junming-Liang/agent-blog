@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "marketplace",
+  "name": "插件广场",
+  "summary": "离线搜索和查询目录元数据，供人和 Agent 审查选择插件。",
+  "category": "tools",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/marketplace",
+    "package": "@agent-blog/marketplace"
+  }
+}

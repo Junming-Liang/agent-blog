@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "editor-highlight",
+  "name": "编辑器语法高亮",
+  "summary": "为网页编辑器添加语法着色，可独立启用或禁用。",
+  "category": "editor",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [
+    "editor"
+  ],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {
+    "@codemirror/language": "^6.11.0"
+  },
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0",
+    "@agent-blog/editor": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/editor-highlight",
+    "package": "@agent-blog/editor-highlight"
+  }
+}

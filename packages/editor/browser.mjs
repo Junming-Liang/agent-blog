@@ -1,15 +1,12 @@
-import {EditorState, StateEffect} from '@codemirror/state';
+import {EditorState, StateEffect, Compartment} from '@codemirror/state';
 import {EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter} from '@codemirror/view';
 import {history, defaultKeymap, historyKeymap} from '@codemirror/commands';
-import {markdown} from '@codemirror/lang-markdown';
-import {javascript} from '@codemirror/lang-javascript';
-import {python} from '@codemirror/lang-python';
-import {LanguageDescription, syntaxHighlighting, defaultHighlightStyle} from '@codemirror/language';
+import {syntaxHighlighting} from '@codemirror/language';
 
 const editorListeners = new Map(), extraExtensions = [];
 const $ = id => document.getElementById(id);
 let active = null, saved = '', siteRoot = '', saving = false, previewSequence = 0, openSequence = 0, previewTimer;
-const extensions = [lineNumbers(), highlightActiveLine(), highlightActiveLineGutter(), history(), keymap.of([{key: 'Mod-s', run: () => {save(); return true;}}, ...defaultKeymap, ...historyKeymap]), markdown({codeLanguages: [LanguageDescription.of({name: 'JavaScript', alias: ['js', 'javascript'], support: javascript()}), LanguageDescription.of({name: 'Python', alias: ['py', 'python'], support: python()})]}), syntaxHighlighting(defaultHighlightStyle), EditorView.lineWrapping, EditorView.updateListener.of(update => {if (update.docChanged) changed();})];
+const extensions = [lineNumbers(), highlightActiveLine(), highlightActiveLineGutter(), history(), keymap.of([{key: 'Mod-s', run: () => {save(); return true;}}, ...defaultKeymap, ...historyKeymap]), EditorView.lineWrapping, EditorView.updateListener.of(update => {if (update.docChanged) changed();})];
 const editor = new EditorView({parent: $('editor'), state: EditorState.create({extensions})});
 function metadata() {
   const originalDate = active?.metadata.date;
@@ -76,12 +73,13 @@ async function openPost(slug, force = false) {
   const sequence = ++openSequence;
   try { const post = (await request('posts/' + encodeURIComponent(slug))).data; if (sequence === openSequence) setPost(post); } catch (error) { if (sequence === openSequence) status(error.message, true); }
 }
-function newPost() {
-  if (saving || (dirty() && !confirm('当前修改还没有保存，是否放弃修改并新建文章？'))) return;
+function newPost(input = {}) {
+  if (saving || (dirty() && !confirm('当前修改还没有保存，是否放弃修改并新建文章？'))) return false;
   openSequence++;
   const slug = 'note-' + Date.now().toString(36);
-  setPost({slug, revision: null, metadata: {title: '', date: new Date().toISOString().slice(0, 10), tags: [], draft: true}, body: ''});
+  setPost({slug, revision: null, metadata: {title: '', date: new Date().toISOString().slice(0, 10), tags: [], ...structuredClone(input.metadata || {}), draft: true}, body: input.body || ''});
   $('title').focus();
+  return true;
 }
 async function save(draft = active?.metadata.draft) {
   if (!active || saving) return;
@@ -115,32 +113,30 @@ function insert(before, after = '') {
   editor.dispatch({changes: {from, to, insert: before + selected + after}, selection: {anchor: from + before.length, head: from + before.length + selected.length}}); editor.focus();
 }
 for (const id of ['title', 'slug', 'date', 'tags', 'description']) $(id).addEventListener('input', changed);
-$('new-post').addEventListener('click', newPost);
+$('new-post').addEventListener('click', () => newPost());
 $('save-post').addEventListener('click', () => save());
 $('publish-post').addEventListener('click', () => save(!active.metadata.draft));
 $('reload-post').addEventListener('click', () => {if (active?.revision) openPost(active.slug);});
-$('insert-bold').addEventListener('click', () => insert('**', '**'));
-$('insert-code').addEventListener('click', () => insert('\n```javascript\n', '\n```\n'));
-$('insert-math').addEventListener('click', () => insert('\n$$\n', '\n$$\n'));
-$('agent-context').addEventListener('click', async () => {
-  if (!active?.revision) return status('先保存文章，再把上下文交给 Agent。');
-  const context = {site: siteRoot, slug: active.slug, revision: active.revision, unsavedChanges: dirty(), draft: {metadata: metadata(), body: editor.state.doc.toString()}, discover: ['agent-blog', 'schema', '--site', siteRoot, '--json'], read: ['agent-blog', 'get', active.slug, '--site', siteRoot, '--json'], write: ['agent-blog', 'put', active.slug, '--site', siteRoot, '--stdin', '--if-revision', active.revision, '--json'], instructions: ['Read the latest file before writing; its revision may have changed.', 'Preserve custom metadata.', 'Merge this editor draft with the latest file; never overwrite a conflict.', 'Use the latest read revision when writing.', 'Ask the user what change they want.']};
-  try { await navigator.clipboard.writeText(JSON.stringify(context, null, 2)); status('已复制文章上下文，可粘贴给 Agent。'); } catch { status('浏览器没有授予剪贴板权限。', true); }
-});
 window.addEventListener('beforeunload', event => {if (dirty()) {event.preventDefault(); event.returnValue = '';}});
 async function loadExtensions() {
   const manifest = (await request('extensions')).data, failures = [];
   for (const entry of manifest) {
+    const cleanups = [], compartment = new Compartment(), values = [];
+    let extensionConfig = compartment.of([]);
     try {
       if (entry.stylesheet) {
         const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = entry.stylesheet; document.head.append(link);
+        cleanups.push(() => link.remove());
       }
       if (!entry.module) continue;
       const extension = await import(entry.module);
       if (typeof extension.setup !== 'function') throw Error('编辑器扩展需要导出 setup');
+      extraExtensions.push(extensionConfig);
+      editor.dispatch({effects: StateEffect.appendConfig.of(extensionConfig)});
       const slots = {toolbar: document.querySelector('.format-actions'), sidebar: $('extension-sidebar'), panels: $('extension-panels'), topbar: document.querySelector('.top-actions')};
       const api = Object.freeze({
-        editor, getDraft, insert, save, status,
+        editor, getDraft, newPost, insert, save, status, isDirty: dirty,
+        getSite: () => ({root: siteRoot, title: $('site-title').textContent}),
         codemirror: {EditorState, EditorView, StateEffect, keymap, syntaxHighlighting},
         updateDraft(patch) {
           if (!active) return;
@@ -154,7 +150,8 @@ async function loadExtensions() {
         },
         mount(location, node) {
           if (!slots[location] || !(node instanceof HTMLElement)) throw Error('无效的编辑器插槽或元素');
-          slots[location].append(node); return () => node.remove();
+          slots[location].append(node);
+          const remove = () => node.remove(); cleanups.push(remove); return remove;
         },
         button({id, label, title = label, location = 'toolbar', run}) {
           if (!/^[a-z][a-z0-9-]*$/.test(id) || typeof label !== 'string') throw Error('扩展按钮需要有效的 id 和标签');
@@ -164,11 +161,18 @@ async function loadExtensions() {
           button.addEventListener('click', async () => {button.disabled = true; try {await run();} catch (error) {status(error.message, true);} finally {button.disabled = false;}});
           api.mount(location, button); return button;
         },
-        extension(value) {extraExtensions.push(value); editor.dispatch({effects: StateEffect.appendConfig.of(value)});},
+        extension(value) {
+          values.push(value);
+          const index = extraExtensions.indexOf(extensionConfig);
+          extensionConfig = compartment.of([...values]);
+          extraExtensions[index] = extensionConfig;
+          editor.dispatch({effects: compartment.reconfigure([...values])});
+        },
         on(name, handler) {
           if (!['open', 'change', 'saved'].includes(name) || typeof handler !== 'function') throw Error('无效的编辑器事件');
           if (!editorListeners.has(name)) editorListeners.set(name, new Set());
-          editorListeners.get(name).add(handler); return () => editorListeners.get(name).delete(handler);
+          editorListeners.get(name).add(handler);
+          const remove = () => editorListeners.get(name).delete(handler); cleanups.push(remove); return remove;
         },
         async command(name, invocation = {}) {
           const reply = await request('commands/' + encodeURIComponent(name), {method: 'POST', body: JSON.stringify(invocation)});
@@ -177,7 +181,13 @@ async function loadExtensions() {
         }
       });
       await extension.setup(api, entry.options || {});
-    } catch (error) { failures.push(`扩展 ${entry.name} 加载失败：${error.message}`); }
+    } catch (error) {
+      for (const cleanup of cleanups.reverse()) cleanup();
+      const index = extraExtensions.indexOf(extensionConfig);
+      if (index >= 0) extraExtensions.splice(index, 1);
+      editor.dispatch({effects: compartment.reconfigure([])});
+      failures.push(`扩展 ${entry.name} 加载失败：${error.message}`);
+    }
   }
   return failures;
 }

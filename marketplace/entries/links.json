@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "links",
+  "name": "友情链接",
+  "summary": "生成友情链接页面，链接内容通过插件选项配置。",
+  "category": "content",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/links",
+    "package": "@agent-blog/links"
+  }
+}

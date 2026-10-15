@@ -8,8 +8,18 @@
     "@agent-blog/highlight",
     "@agent-blog/math",
     "@agent-blog/editor",
+    "@agent-blog/editor-markdown",
+    "@agent-blog/editor-highlight",
+    "@agent-blog/editor-agent",
     "./plugins/reading-time.mjs",
     "@agent-blog/theme-paper",
-    "./plugins/writing-tools.mjs"
+    "./plugins/writing-tools.mjs",
+    "@agent-blog/notes",
+    "@agent-blog/pages",
+    "@agent-blog/navigation",
+    "@agent-blog/archive",
+    "@agent-blog/links",
+    "@agent-blog/date-format",
+    "@agent-blog/marketplace"
   ]
 }

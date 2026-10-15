@@ -9,3 +9,6 @@ packages/editor/public/editor.js
 AGENTS.local.md
 .env
 .env.*
+packages/editor/public/bundle/
+packages/editor-markdown/public/bundle/
+packages/editor-highlight/public/bundle/

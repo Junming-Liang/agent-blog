@@ -1,0 +1,7 @@
+{
+  "name": "marketplace",
+  "apiVersion": 1,
+  "requires": [],
+  "optionalRequires": [],
+  "extends": []
+}

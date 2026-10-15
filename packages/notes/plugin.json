@@ -1,0 +1,9 @@
+{
+  "name": "notes",
+  "apiVersion": 1,
+  "requires": [],
+  "optionalRequires": [
+    "editor"
+  ],
+  "extends": []
+}

@@ -24,7 +24,7 @@ void invalidContracts;
 import type {EditorService} from '@agent-blog/editor';
 import type {EditorExtension} from '@agent-blog/editor/browser';
 const cells: Plugin = {
-  name: 'typed-cells', apiVersion: 1,
+  name: 'typed-cells', apiVersion: 1, optionalRequires: ['editor'],
   setup(api) {
     api.codec({extension: '.json', decode: (_slug, source) => JSON.parse(source), encode: input => JSON.stringify(input)});
     api.validator(input => { if (input.metadata.series === false) api.fail('SERIES', 'Invalid series'); });
@@ -35,8 +35,11 @@ const cells: Plugin = {
     api.middleware((_context, next) => next());
     api.commandMiddleware((_context, next) => next());
     api.on('post:written', ({post}) => { void post.revision; });
-    const editor = api.require<EditorService>('editor');
-    editor.register({name: 'typed-ui', module: '/_assets/typed-ui/browser.mjs'});
+    api.indexFilter(post => post.metadata.type !== 'page');
+    api.component('custom:card', context => context.html, {fallback: true});
+    api.output('custom/index.html', context => context.renderPage({title: 'Custom', html: 'Custom'}));
+    const editor = api.optional<EditorService>('editor');
+    editor?.register({name: 'typed-ui', module: '/_assets/typed-ui/browser.mjs'});
     // @ts-expect-error event names are explicit
     api.on('post:unknown', () => {});
     // @ts-expect-error async raw storage does not meet the synchronous adapter contract
@@ -46,6 +49,8 @@ const cells: Plugin = {
 const browser: EditorExtension = {setup(api) {
   api.button({id: 'custom', label: 'Custom', run: () => api.insert('**', '**')});
   api.mount('panels', document.createElement('div'));
+  api.newPost({metadata: {type: 'note'}});
+  void api.getSite().root;
   api.updateDraft({metadata: {series: 'My series'}});
   api.on('saved', draft => {void draft?.revision;});
   // @ts-expect-error unknown editor mount points are rejected

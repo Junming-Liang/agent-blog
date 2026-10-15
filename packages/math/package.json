@@ -1,1 +1,18 @@
-{"name":"@agent-blog/math","version":"0.1.0","type":"module","exports":"./index.mjs","files":["index.mjs"],"dependencies":{"katex":"^0.16.0"}}
+{
+  "name": "@agent-blog/math",
+  "version": "0.2.0",
+  "type": "module",
+  "exports": "./index.mjs",
+  "files": [
+    "index.mjs",
+    "editor",
+    "plugin.json"
+  ],
+  "dependencies": {
+    "katex": "^0.16.0"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  }
+}

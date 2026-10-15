@@ -1,0 +1,15 @@
+{
+  "name": "@agent-blog/pages",
+  "version": "0.2.0",
+  "type": "module",
+  "license": "MIT",
+  "exports": "./index.mjs",
+  "files": [
+    "index.mjs",
+    "public",
+    "plugin.json"
+  ],
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  }
+}

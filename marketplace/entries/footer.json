@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "footer",
+  "name": "页脚",
+  "summary": "通过插件选项配置页脚文字及链接。",
+  "category": "content",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/footer",
+    "package": "@agent-blog/footer"
+  }
+}

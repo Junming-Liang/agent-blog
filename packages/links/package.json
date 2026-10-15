@@ -1,0 +1,14 @@
+{
+  "name": "@agent-blog/links",
+  "version": "0.2.0",
+  "type": "module",
+  "license": "MIT",
+  "exports": "./index.mjs",
+  "files": [
+    "index.mjs",
+    "plugin.json"
+  ],
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  }
+}

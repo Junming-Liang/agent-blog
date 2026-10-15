@@ -1,0 +1,9 @@
+{
+  "name": "editor-agent",
+  "apiVersion": 1,
+  "requires": [
+    "editor"
+  ],
+  "optionalRequires": [],
+  "extends": []
+}

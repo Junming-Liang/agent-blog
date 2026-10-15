@@ -1,8 +1,9 @@
+import manifest from './plugin.json' with {type: 'json'};
 import {fileURLToPath} from 'node:url';
 
 /** @type {import('@agent-blog/core').Plugin} */
 export default {
-  name: 'theme-paper', apiVersion: 1,
+  ...manifest,
   description: 'Warm paper typography and a quiet reading layout.',
   setup(api) {
     api.layout(context => context.render('shell'), {unstyled: true});

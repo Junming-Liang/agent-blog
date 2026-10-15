@@ -1,0 +1,11 @@
+{
+  "name": "highlight",
+  "apiVersion": 1,
+  "requires": [
+    "markdown"
+  ],
+  "optionalRequires": [
+    "editor"
+  ],
+  "extends": []
+}

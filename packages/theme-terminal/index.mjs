@@ -1,8 +1,9 @@
+import manifest from './plugin.json' with {type: 'json'};
 import {fileURLToPath} from 'node:url';
 
 /** @type {import('@agent-blog/core').Plugin} */
 export default {
-  name: 'theme-terminal', apiVersion: 1,
+  ...manifest,
   description: 'Dark terminal typography with green accents.',
   setup(api) {
     api.layout(context => context.render('shell'), {unstyled: true});

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "notes",
+  "name": "说说",
+  "summary": "独立的短内容类型、列表与 CLI，可选添加网页编辑入口。",
+  "category": "content",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [
+    "editor"
+  ],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/notes",
+    "package": "@agent-blog/notes"
+  }
+}

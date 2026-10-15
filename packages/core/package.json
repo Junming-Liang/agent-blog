@@ -1,10 +1,24 @@
 {
   "name": "@agent-blog/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
-  "bin": {"agent-blog": "cli.mjs"},
-  "exports": {".": {"types": "./api.d.ts", "default": "./index.mjs"}},
-  "files": ["*.mjs", "*.d.ts", "public", "README.md"],
-  "engines": {"node": ">=22"}
+  "bin": {
+    "agent-blog": "cli.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./api.d.ts",
+      "default": "./index.mjs"
+    }
+  },
+  "files": [
+    "*.mjs",
+    "*.d.ts",
+    "public",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  }
 }

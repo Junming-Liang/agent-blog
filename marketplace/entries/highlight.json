@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "highlight",
+  "name": "代码高亮",
+  "summary": "渲染代码围栏的语法高亮；可选提供编辑器代码块按钮。",
+  "category": "rendering",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [
+    "markdown"
+  ],
+  "optionalRequires": [
+    "editor"
+  ],
+  "extends": [],
+  "dependencies": {
+    "highlight.js": "^11.11.0"
+  },
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/highlight",
+    "package": "@agent-blog/highlight"
+  }
+}

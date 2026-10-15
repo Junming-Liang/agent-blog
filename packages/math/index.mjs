@@ -1,14 +1,21 @@
+import manifest from './plugin.json' with {type: 'json'};
+import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {createRequire} from 'node:module';
 import katex from 'katex';
 const require = createRequire(import.meta.url);
 export default {
-  name: 'math',
-  apiVersion: 1,
-  requires: ['markdown'],
+  ...manifest,
+
+
   description: 'Render inline and display TeX to static HTML and MathML.',
   optionsSchema: {type: 'object', description: 'KaTeX options; trust, error handling, macro state and expansion limits are controlled by this plugin.', properties: {fleqn: {type: 'boolean'}, leqno: {type: 'boolean'}, errorColor: {type: 'string'}}},
   setup(api, options) {
+    const editor = api.optional('editor');
+    if (editor) {
+      api.asset('/_assets/math-editor', fileURLToPath(new URL('./editor', import.meta.url)), {public: false});
+      editor.register({name: 'math', module: '/_assets/math-editor/browser.mjs'});
+    }
     const markdown = api.require('markdown');
     const render = (source, displayMode) => katex.renderToString(source, {...options, displayMode, trust: false, throwOnError: false, maxExpand: 1000, maxSize: 20, macros: {}});
     markdown.inline.ruler.before('escape', 'agent_math', (state, silent) => {

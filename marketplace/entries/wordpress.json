@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "wordpress",
+  "name": "WordPress 导入",
+  "summary": "从只读导出文件迁移内容，保留原始来源与发布状态。",
+  "category": "integration",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {
+    "turndown": "^7.2.0",
+    "turndown-plugin-gfm": "^1.0.2"
+  },
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/wordpress",
+    "package": "@agent-blog/wordpress"
+  }
+}

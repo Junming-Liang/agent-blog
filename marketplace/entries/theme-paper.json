@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "theme-paper",
+  "name": "纸张主题",
+  "summary": "以纸张风格展示博客，可以独立替换或禁用。",
+  "category": "theme",
+  "apiVersion": 1,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agent Blog contributors",
+      "url": "https://github.com/Junming-Liang/agent-blog"
+    }
+  ],
+  "requires": [],
+  "optionalRequires": [],
+  "extends": [],
+  "dependencies": {},
+  "peerDependencies": {
+    "@agent-blog/core": "^0.2.0"
+  },
+  "source": {
+    "type": "builtin",
+    "path": "packages/theme-paper",
+    "package": "@agent-blog/theme-paper"
+  }
+}
