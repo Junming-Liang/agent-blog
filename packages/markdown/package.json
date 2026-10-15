@@ -1,0 +1,1 @@
+{"name":"@agent-blog/markdown","version":"0.1.0","type":"module","exports":"./index.mjs","files":["index.mjs"],"dependencies":{"markdown-it":"^15.0.0"}}

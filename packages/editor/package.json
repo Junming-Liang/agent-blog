@@ -1,0 +1,15 @@
+{
+  "name": "@agent-blog/editor",
+  "version": "0.1.0", "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {"types": "./api.d.ts", "default": "./index.mjs"},
+    "./browser": {"types": "./browser-api.d.ts"}
+  },
+  "files": ["index.mjs", "public", "api.d.ts", "browser-api.d.ts"],
+  "dependencies": {
+    "@codemirror/state": "^6.5.0", "@codemirror/view": "^6.36.0", "@codemirror/commands": "^6.8.0",
+    "@codemirror/language": "^6.11.0", "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/lang-javascript": "^6.2.0", "@codemirror/lang-python": "^6.2.0"
+  }
+}

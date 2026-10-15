@@ -1,0 +1,16 @@
+{
+  "name": "agent-blog-workspace",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build:editor": "node scripts/build-editor.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:types": "tsc --noEmit --strict --module NodeNext --moduleResolution NodeNext --target ES2022 tests/plugin-types.ts",
+    "dev": "node packages/core/cli.mjs serve --site examples/demo",
+    "build": "node packages/core/cli.mjs build --site examples/demo --json"
+  },
+  "devDependencies": {"esbuild": "^0.25.0", "typescript": "^5.9.0", "@types/node": "^22.0.0"},
+  "engines": {"node": ">=22"}
+}

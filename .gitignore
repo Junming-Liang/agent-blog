@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.build-*/
+*.tmp
+.write-lock/
+test-results/
+packages/editor/public/editor.js
+AGENTS.local.md
+.env
+.env.*

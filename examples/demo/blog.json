@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "title": "Agent Blog 写作空间",
+  "description": "记录研究、代码与生活。让工具保持简单，让表达保持自由。",
+  "language": "zh-CN",
+  "plugins": [
+    "@agent-blog/markdown",
+    "@agent-blog/highlight",
+    "@agent-blog/math",
+    "@agent-blog/editor",
+    "./plugins/reading-time.mjs",
+    "@agent-blog/theme-paper",
+    "./plugins/writing-tools.mjs"
+  ]
+}
